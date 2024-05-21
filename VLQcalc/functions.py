@@ -1,6 +1,6 @@
 """
 Author: Ali Can Canbay - acanbay
-Date  : 24 Nov 2022
+Date  : 21 May 2024
 
 This module contains the kappa calculation methods.
 calcRatioKappas calculates kappas based on Gamma/Mass ratios using a modified genetic algorithm [1].

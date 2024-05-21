@@ -1,6 +1,6 @@
 """
 Author: Ali Can Canbay - acanbay
-Date  : 25 Jan 2022
+Date  : 21 May 2024
 
 This module is used to create MG5 object. MG5 object contains methods to create input file for 
 MadGraph5_aMC@NLO [1].

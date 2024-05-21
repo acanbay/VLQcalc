@@ -1,6 +1,6 @@
 """
 Author: Ali Can Canbay - acanbay
-Date  : 26 Mar 2022
+Date  : 21 May 2024
 
 Calculates decay widths for VLQ_v4_4FNS_UFO and VLQ_v4_4FNS_UFO models [1,2].
 All constants and formulas are taken directly from the models.

@@ -1,6 +1,6 @@
 """
 Author: Ali Can Canbay - acanbay
-Date  : 26 Oct 2022
+Date  : 21 May 2024
 
 Converts parameters between VLQ_UFO model [1,2] and VLQ_v4_#FNS_UFO (#: 4 or 5) models [1,3].
     reverse=False: VLQ_UFO --> VLQ_v4_#FNS_UFO

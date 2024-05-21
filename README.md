@@ -11,6 +11,7 @@ It is capable of:
 
 ### VLQ Class
 
+It is defined in the submodule named *model*.
 ```python
 import VLQcalc.model as model
 ```
@@ -23,7 +24,7 @@ vlq = model.VLQ( VLQ_type, FNS, LR )
 ```
 
 | Parameter | Format | Values | Default Value |
-|-|-|-|:-:|
+|-|-|:-:|:-:|
 |VLQ_type|string|X, T, B, Y|-|
 |FNS|integer|4, 5|4|
 |LR|bool|True, False|False|
@@ -32,7 +33,7 @@ vlq = model.VLQ( VLQ_type, FNS, LR )
 * ```LR=False``` allows calculations with only left-handed couplings, while ```LR=True``` allows calculations with both left and right-handed couplings.
 <br>
 
-#### `setMass` method
+#### `setMass` method:
 The mass is passed to the method as a single value or a list of values in integer or float data type in GeV unit.
 
 ```python
@@ -41,47 +42,74 @@ vlq.setMAss( [1000,1500,2000] )
 ```
 <br>
 
-#### `convertModel` method
+#### `convertModel` method:
 
 ```python
-vlq.convertModel( vlq, Kappas, BRs, reverse )
+vlq.convertModel( Kappas, BRs, reverse )
 ```
 
 | Parameter | Format | Values | Default Value |
-|:----------|--------|--------|:-------------:|
+|-|-|:-:|:-:|
 |Kappas|float/integer or list|any|-|
-|BRs|float/integer or list|any|-|
+|BRs|float/integer or list|any|1|
 |reverse|bool|True, False|False|
 
-* For T to be B, the parameter named Kappas is given in the list as $[\kappa_H, \kappa_W, \kappa_Z]$. Only $\kappa_W$ is written for the X and Y.
+* For T and B, the parameter named Kappas is given in the list as $[\kappa_H, \kappa_W, \kappa_Z]$. Only $\kappa_W$ is written for the X and Y.
+* For T and B, the parameter named BRs is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
 * When the `reverse` value is `False`, the transformation is from VLQ_UFO to VLQ_v4_UFO; when `True`, it is from VLQ_v4_UFO to VLQ_UFO.
 
 <br>
 
-#### `calcDecay` method 
+#### `calcDecay` method:
 
-For T and B
+For T and B:
 ```python
 decayH, decayW, decayZ, Gamma = vlq.calcDecay( mass, Kappas, LR )
 ```
-
-For X and Y
+For X and Y:
 ```python
 decayW = vlq.calcDecay( Mass, Kappa, LR )
 ```
 | Parameter | Format | Values | Default Value |
-|:----------|--------|--------|:-------------:|
+|-|-|:-:|:-:|
 |Mass|float/integer or list|any|-|
 |Kappas|list|any|-|
-|Kappa|float/intege|any|-|
+|Kappa|float/integer|any|-|
 |LR|bool|True, False|False|
 
 <br>
 
-#### `calcRatioKappas` method 
+#### `calcRatioKappas` method:
 
-####
+```python
+vlq.calcRatioKappas( BRs, Ratio )
+```
 
+| Parameter | Format | Values | Default Value |
+|-|-|:-:|:-:|
+|BRs|float/integer or list|any|-|
+|Ratio|float or integer|any|-|
+
+* For T and B, the parameter named BRs is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
+* Ratio is $\Gamma_Q/m_Q$ value.
+
+### MG5 Class
+
+It is defined in the submodule named *madgraph*.
+```python
+import VLQcalc.madgraph as madgraph
+```
+
+Creating a MG5 object:
+
+```python
+mg5 = madgraph.MG5(VLQ, model)
+```
+
+| Parameter | Format | Values | Default Value |
+|-|-|:-:|:-:|
+|VLQ|VLQ object|-|-|
+|model|string|VLQ_UFO, VLQ_v4, VLQ_v5|VLQ_v4|
 
 ### References
 1. M. Buchkremer, G. Cacciapaglia, A. Deandrea, and L. Panizzi. Model-independent framework for searches of top partners. *Nuclear Physics B*, 876(2):376–417, 2013.

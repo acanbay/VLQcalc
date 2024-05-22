@@ -1,8 +1,8 @@
-# VLQcalc [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?&logo=arxiv&logoColor=red)](https://arxiv.org/abs/1234.56789) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD)
-
-
+# VLQcalc [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?style=flat&logo=arxiv&logoColor=red)](https://arxiv.org/abs/1234.56789) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD)
 
 >**a Python Module for Calculating Vector-like Quark Parameters**
+
+<br>
 
 It is capable of:
 * Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO (or VLQ_v5_5FNS_UFO) $^{[2]}$ generated with FeynRules $^{[3]}$,

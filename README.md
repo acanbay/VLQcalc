@@ -12,7 +12,7 @@ It is capable of:
 
 <br>
 
-By clicking on the '*launch binder*' button above, the module can be run online, and the examples in the 'examples' folder can be tested.
+By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$, and the examples in the *examples* folder can be tested.
 
 
 ---
@@ -149,7 +149,10 @@ mg5.createMG5Input( file_name )
 ---
 
 ### References
+
 1. M. Buchkremer, G. Cacciapaglia, A. Deandrea, and L. Panizzi. Model-independent framework for searches of top partners. *Nuclear Physics B*, 876(2):376–417, 2013.
 2. B. Fuks and H. S. Shao. QCD next-to-leading-order predictions matched to parton showers for vector-like quark models. *The European Physical Journal C*, 77(2):1–21, 2017.
 3. N. D. Christensen and C. Duhr. Feynrules–Feynman rules made easy. *Computer Physics Communications*,180(9):1614–1641, 2009.
 4. J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, and T. Stelzer. Madgraph 5: going beyond. *Journal of High Energy Physics*, 2011(6):1–40, 2011.
+5. Jupyter et al., "Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale." Proceedings of the 17th Python in Science Conference. 2018.
+

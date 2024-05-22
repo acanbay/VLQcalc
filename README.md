@@ -108,6 +108,12 @@ Creating a MG5 object:
 mg5 = madgraph.MG5(VLQ, model)
 ```
 
+
+```python
+mg5.setProcess( process )
+mg5.addProcess( process )
+```
+
 | Parameter | Format | Values | Default Value |
 |-|-|:-:|:-:|
 |VLQ|VLQ object|-|-|

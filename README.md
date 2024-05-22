@@ -9,7 +9,14 @@ It is capable of:
 * Calculating VLQ decay widths,
 * Computing Narrow Width Approximation coupling constants,
 * Generating MadGraph5 $^{[4]}$ input card.
+
+<br>
+
+By clicking on the '*launch binder*' button above, the module can be run online, and the examples in the 'examples' folder can be tested.
+
+
 ---
+<br>
 
 ### VLQ Class
 
@@ -95,6 +102,8 @@ vlq.calcRatioKappas( BRs, Ratio )
 * For T and B, the parameter named BRs is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
 * Ratio is $\Gamma_Q/m_Q$ value.
 
+<br>
+
 ### MG5 Class
 
 It is defined in the submodule named *madgraph*.
@@ -108,16 +117,36 @@ Creating a MG5 object:
 mg5 = madgraph.MG5(VLQ, model)
 ```
 
+<br>
+In the MG5 object, there are two different methods for entering a process: `setProcess` and `addProcess` methods, which take their parameters as strings, are used respectively to define the main process and additional processes.
 
 ```python
 mg5.setProcess( process )
 mg5.addProcess( process )
 ```
 
-| Parameter | Format | Values | Default Value |
-|-|-|:-:|:-:|
-|VLQ|VLQ object|-|-|
-|model|string|VLQ_UFO, VLQ_v4, VLQ_v5|VLQ_v4|
+<br>
+MG5 object also have the properties in string format listed in the table below.
+
+| Property | Values | Default Value |
+|-|-|:-:|
+|shower|OFF, pythia8, ...|OFF|
+|detector|OFF, Delphes, ...|OFF|
+|analysis|OFF, ExRoot, MadAnalysis, ...|OFF|
+|madspin|OFF, ON, onshell, full|OFF|
+|reweight|OFF, ON|OFF|
+
+<br>
+
+`addInput` method, which takes a string parameter, is used to define inputs that allow modifications to be made on simulation cards. After all definitions have been made, an MG5 input card can be generated using the `createMG5Input` method, which takes the output file name (in string format) as a parameter.
+
+```python
+mg5.addInput( input )
+mg5.createMG5Input( file_name )
+```
+<br>
+
+---
 
 ### References
 1. M. Buchkremer, G. Cacciapaglia, A. Deandrea, and L. Panizzi. Model-independent framework for searches of top partners. *Nuclear Physics B*, 876(2):376–417, 2013.

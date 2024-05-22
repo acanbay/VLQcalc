@@ -27,7 +27,6 @@ import VLQcalc.model as model
 <br>
 
 Creating a VLQ object:
-
 ```python
 vlq = model.VLQ( VLQ_type, FNS, LR )
 ```
@@ -44,7 +43,6 @@ vlq = model.VLQ( VLQ_type, FNS, LR )
 
 #### `setMass` method:
 The mass is passed to the method as a single value or a list of values in integer or float data type in GeV unit.
-
 ```python
 vlq.setMass( 1000 )
 vlq.setMAss( [1000,1500,2000] )
@@ -52,7 +50,6 @@ vlq.setMAss( [1000,1500,2000] )
 <br>
 
 #### `convertModel` method:
-
 ```python
 vlq.convertModel( Kappas, BRs, reverse )
 ```
@@ -89,7 +86,6 @@ decayW = vlq.calcDecay( Mass, Kappa, LR )
 <br>
 
 #### `calcRatioKappas` method:
-
 ```python
 vlq.calcRatioKappas( BRs, Ratio )
 ```
@@ -112,14 +108,12 @@ import VLQcalc.madgraph as madgraph
 ```
 
 Creating a MG5 object:
-
 ```python
 mg5 = madgraph.MG5(VLQ, model)
 ```
 
 <br>
 In the MG5 object, there are two different methods for entering a process: `setProcess` and `addProcess` methods, which take their parameters as strings, are used respectively to define the main process and additional processes.
-
 ```python
 mg5.setProcess( process )
 mg5.addProcess( process )
@@ -139,7 +133,6 @@ MG5 object also have the properties in string format listed in the table below.
 <br>
 
 `addInput` method, which takes a string parameter, is used to define inputs that allow modifications to be made on simulation cards. After all definitions have been made, an MG5 input card can be generated using the `createMG5Input` method, which takes the output file name (in string format) as a parameter.
-
 ```python
 mg5.addInput( input )
 mg5.createMG5Input( file_name )

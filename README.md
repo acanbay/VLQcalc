@@ -1,4 +1,6 @@
-# VLQcalc [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?style=flat)](https://arxiv.org/abs/1234.56789) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD)
+# VLQcalc [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?&logo=arxiv&logoColor=red)](https://arxiv.org/abs/1234.56789) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD)
+
+
 
 >**a Python Module for Calculating Vector-like Quark Parameters**
 

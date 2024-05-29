@@ -5,7 +5,7 @@
 <br>
 
 It is capable of:
-* Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO (or VLQ_v5_5FNS_UFO) $^{[2]}$ generated with FeynRules $^{[3]}$,
+* Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO $^{[2]}$ generated with FeynRules $^{[3]}$,
 * Calculating VLQ decay widths,
 * Computing Narrow Width Approximation coupling constants,
 * Generating MadGraph5 $^{[4]}$ input card.
@@ -111,6 +111,7 @@ Creating a MG5 object:
 ```python
 mg5 = madgraph.MG5(VLQ, model)
 ```
+* model = VLQ_UFO or VLQ_v4
 
 <br>
 In the MG5 object, there are two different methods for entering a process: `setProcess` and `addProcess` methods, which take their parameters as strings, are used respectively to define the main process and additional processes.

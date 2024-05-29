@@ -111,7 +111,8 @@ Creating a MG5 object:
 ```python
 mg5 = madgraph.MG5(VLQ, model)
 ```
-* model = VLQ_UFO or VLQ_v4
+* `model` parameter can be VLQ_UFO or VLQ_v4 in string format.
+
 
 <br>
 In the MG5 object, there are two different methods for entering a process: `setProcess` and `addProcess` methods, which take their parameters as strings, are used respectively to define the main process and additional processes.

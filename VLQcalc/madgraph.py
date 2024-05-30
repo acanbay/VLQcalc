@@ -16,7 +16,7 @@ class MG5:
         self.VLQ = VLQ
 
         # Checking the model
-        if model.upper() not in ['VLQ_UFO', 'VLQ_V4']:
+        if model.upper() not in ['VLQ_UFO', 'VLQ_V4_UFO']:
             print('\n!! Error: VLQ !!\nmodel must be one of the following:\n')
             print('  VLQ_UFO')
             print('  VLQ_v4_UFO')
@@ -24,7 +24,7 @@ class MG5:
         if model.upper() == 'VLQ_UFO':
             self.model = 'VLQ_UFO'
             self.text = 'import model VLQ_UFO\n'
-        elif model.upper() == 'VLQ_V4':
+        elif model.upper() == 'VLQ_V4_UFO':
             self.model = 'VLQ_v4_UFO'
             self.text = f'import model {self.model}_{VLQ.FNS}FNS_UFO-3rd'
             if VLQ.LR:

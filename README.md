@@ -65,8 +65,8 @@ vlq.convertModel( Kappas, BRs, reverse )
 |BRs|float/integer or list|any|1|
 |reverse|bool|True, False|False|
 
-* For T and B, the parameter named Kappas is given in the list as $[\kappa_H, \kappa_W, \kappa_Z]$. Only $\kappa_W$ is written for the X and Y.
-* For T and B, the parameter named BRs is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
+* For T and B, the parameter named `Kappas` is given in the list as $[\kappa_H, \kappa_W, \kappa_Z]$. Only $\kappa_W$ is written for the X and Y.
+* For T and B, the parameter named `BRs` is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
 * When the `reverse` value is `False`, the transformation is from VLQ_UFO to VLQ_v4_UFO; when `True`, it is from VLQ_v4_UFO to VLQ_UFO.
 
 <br>
@@ -100,7 +100,7 @@ vlq.calcRatioKappas( BRs, Ratio )
 |BRs|float/integer or list|any|-|
 |Ratio|float or integer|any|-|
 
-* For T and B, the parameter named BRs is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
+* For T and B, the parameter named `BRs` is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where Q=X,T,B,Y, and q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
 * Ratio is $\Gamma_Q/m_Q$ value.
 
 <br>

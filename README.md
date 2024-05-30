@@ -16,8 +16,9 @@ It is capable of:
 
 <br>
 
+<!--- 
 By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$, and the examples in the *examples* folder can be tested.
-
+-->
 
 ---
 <br>

@@ -111,7 +111,7 @@ Creating a MG5 object:
 ```python
 mg5 = madgraph.MG5(VLQ, model)
 ```
-* `model` parameter can be VLQ_UFO or VLQ_v4 in string format.
+* `model` parameter can be VLQ_UFO or VLQ_v4_UFO in string format.
 
 
 <br>

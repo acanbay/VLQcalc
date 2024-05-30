@@ -11,7 +11,7 @@
 It is capable of:
 * Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO $^{[2]}$ generated with FeynRules $^{[3]}$,
 * Calculating VLQ decay widths,
-* Computing Narrow Width Approximation coupling constants,
+* Computing coupling constants for width-to-mass ratio $\Gamma/m$,
 * Generating MadGraph5 $^{[4]}$ input card.
 
 <br>

@@ -42,7 +42,7 @@ vlq = model.VLQ( VLQ_type, FNS, LR )
 |FNS|integer|4, 5|4|
 |LR|bool|True, False|False|
 
-* $m_{b}=0$ when `FNS=4`
+* $m_{b}=0$ when `FNS=5`
 * ```LR=False``` allows calculations with only left-handed couplings, while ```LR=True``` allows calculations with both left and right-handed couplings.
 <br>
 

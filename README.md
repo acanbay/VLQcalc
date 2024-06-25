@@ -1,5 +1,4 @@
-# VLQcalc
- 
+# VLQcalc [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb)
 <!--- 
 # VLQcalc [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?style=flat&logo=arxiv&logoColor=red)](https://arxiv.org/abs/1234.56789) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD)
 -->
@@ -16,11 +15,14 @@ It is capable of:
 
 <br>
 
+Click [here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
+
 <!--- 
 By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$, and the examples in the *examples* folder can be tested.
 -->
 
 ---
+
 <br>
 
 ### VLQ Class

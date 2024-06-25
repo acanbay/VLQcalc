@@ -1,0 +1,4 @@
+matplotlib==3.6.3
+# Ensure Jupyter notebook
+notebook~=7.2
+jupyterlab~=4.2

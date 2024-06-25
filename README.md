@@ -15,11 +15,9 @@ It is capable of:
 
 <br>
 
-Click [here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
+By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$.
 
-<!--- 
-By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$, and the examples in the *examples* folder can be tested.
--->
+Click [here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
 
 ---
 

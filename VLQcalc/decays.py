@@ -14,7 +14,7 @@ All constants and formulas are taken directly from the models.
     QCD next-to-leading-order predictions matched to parton showers for vector-like quark models. 
     The European Physical Journal C, 77(2), 1-21.
     https://feynrules.irmp.ucl.ac.be/wiki/NLOModels
-''' 
+'''
 import cmath
 ############
 MH=125.10 

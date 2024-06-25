@@ -55,6 +55,8 @@ vlq.setMAss( [1000,1500,2000] )
 <br>
 
 #### `convertModel` method:
+It converts the couplings in VLQ_UFO and VLQ_v4_UFO models to each other.
+
 ```python
 vlq.convertModel( Kappas, BRs, reverse )
 ```
@@ -74,6 +76,8 @@ vlq.convertModel( Kappas, BRs, reverse )
 <br>
 
 #### `calcDecay` method:
+*It only works with the **VLQ_v4_UFO** model. Converted couplings can be used for VLQ_UFO model*
+<br><br>
 
 For T and B:
 ```python
@@ -93,6 +97,9 @@ decayW = vlq.calcDecay( Mass, Kappa, LR )
 <br>
 
 #### `calcRatioKappas` method:
+It is used to calculate the couplings according to the $\Gamma_Q/m_Q$ ratio.<br>
+*It only works with the **VLQ_v4_UFO** model. Couplings can be converted to VLQ_UFO model after calculations are made according to this model.*
+
 ```python
 vlq.calcRatioKappas( BRs, Ratio )
 ```
@@ -114,8 +121,8 @@ mg5 = madgraph.MG5(VLQ, model)
 ```
 * `model` parameter can be VLQ_UFO or VLQ_v4_UFO in string format.
 
-
 <br>
+
 In the MG5 object, there are two different methods for entering a process: `setProcess` and `addProcess` methods, which take their parameters as strings, are used respectively to define the main process and additional processes.
 ```python
 mg5.setProcess( process )
@@ -140,7 +147,17 @@ MG5 object also have the properties in string format listed in the table below.
 mg5.addInput( input )
 mg5.createMG5Input( file_name )
 ```
+
 <br>
+
+When creating an input card, the processes defined in `setProcess` and `addProcess` are expanded to include both particles and antiparticles. For example, when we consider $p\ p \rightarrow W^{+}\ e^{-} \bar{v}_{e}$ process, the expanded definition to be written in the input card will be as follows:
+
+    define WW = w+ w-
+    define ee = e+ e-
+    define veve = ve ve~
+    generate p p > WW ee veve
+
+This ensures the most accurate event production statistically.
 
 ---
 

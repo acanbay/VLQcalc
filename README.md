@@ -100,6 +100,8 @@ decayW = vlq.calcDecay( Mass, Kappa, LR )
 It is used to calculate the couplings according to the $\Gamma_Q/m_Q$ ratio.<br>
 *It only works with the **VLQ_v4_UFO** model. Couplings can be converted to VLQ_UFO model after calculations are made according to this model.*
 
+The **modified Genetic Algorithm (mGA)** $^{[5]}$ is used to calculate couplings according to the $\Gamma_Q/m_Q$ ratio.
+
 ```python
 vlq.calcRatioKappas( BRs, Ratio )
 ```
@@ -168,4 +170,5 @@ This ensures the most accurate event production statistically.
 3. N. D. Christensen and C. Duhr. Feynrules–Feynman rules made easy. *Computer Physics Communications*,180(9):1614–1641, 2009.
 4. J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, and T. Stelzer. Madgraph 5: going beyond. *Journal of High Energy Physics*, 2011(6):1–40, 2011.
 5. Jupyter et al. Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale. *Proceedings of the 17th Python in Science Conference*. 2018.
+6. A. C. Canbay. modifiedGA (Version 0.1.0) [Computer software]. [DOI: 10.5281/zenodo.12569505](https://doi.org/10.5281/zenodo.12569505), [GitHub: acanbay/modifiedGA](https://github.com/acanbay/modifiedGA)
 

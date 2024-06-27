@@ -17,7 +17,7 @@ It is capable of:
 
 By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$.
 
-Click [here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
+[Click here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
 
 ---
 
@@ -152,14 +152,9 @@ mg5.createMG5Input( file_name )
 
 <br>
 
-When creating an input card, the processes defined in `setProcess` and `addProcess` are expanded to include both particles and antiparticles. For example, when we consider $p\ p \rightarrow W^{+}\ e^{-} \bar{v}_{e}$ process, the expanded definition to be written in the input card will be as follows:
+When creating an input card, the processes defined in `setProcess` and `addProcess` are expanded to include both particles and antiparticles.
 
-    define WW = w+ w-
-    define ee = e+ e-
-    define veve = ve ve~
-    generate p p > WW ee veve
-
-This ensures the most accurate event production statistically.
+<br>
 
 ---
 

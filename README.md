@@ -69,7 +69,7 @@ vlq.convertModel( Kappas, BRs, reverse )
 
 * `Kappas` is
     * $\kappa_Q$ where Q is X, T, B or Y for converting couplings from VLQ_UFO to VLQ_v4_UFO.
-    * given in the list as [$\kappa_H, \kappa_W, \kappa_Z$] for T and B, while it is only $\kappa_W$ for X and Y when converting couplings from VLQ_v4_UFO to VLQ_UFO.
+    * given in the list as $[\kappa_H, \kappa_W, \kappa_Z]$ for T and B, while it is only $\kappa_W$ for X and Y when converting couplings from VLQ_v4_UFO to VLQ_UFO.
 * For T and B, the parameter named `BRs` is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
 * When the `reverse` value is `False`, the conversion is from VLQ_UFO to VLQ_v4_UFO; when `True`, it is from VLQ_v4_UFO to VLQ_UFO.
 

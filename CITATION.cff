@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: 'VLQcalc: a Python Module for Calculating Vector-like Quark Couplings'
+version: 0.1.0
+abstract: We present a python module named VLQcalc which can be used for employing coupling parameters of vector-like quarks (VLQs) within model framework. It facilitates the conversion of couplings between different parametrization of VLQ models and computes these couplings depending on the width-to-mass ratio ($\Gamma/m$), with given branchings. By utilizing a modified version of Genetic Algorithm (mGA) for coupling constant computations it provides parameter-dependent results. This innovative algorithm allows for swift and precise determination of correlated coupling constants with choosen branching ratios for different representations. In addition, VLQcalc can generate input cards for MadGraph5 (MG5) for event generation. The module's capability to efficiently manage the process from calculating coupling constants to prepare MG5 input card will accelerate the tasks in the new studies.
+message: If you use this software, please cite it using these metadata.
+authors:
+- family-names: Canbay
+  given-names: Ali Can
+  orcid: "https://orcid.org/0000-0003-4602-473X"
+- family-names: Cakir
+  given-names: Orhan
+  orcid: "https://orcid.org/0000-0002-9016-138X"
+  
+date-released: '2024-29-06'
+doi: 10.5281/zenodo.12594621
+license: GPL-3.0-only
+type: software
+identifiers:
+  - description: Zenodo release
+    type: doi
+    value: "10.5281/zenodo.12594621"

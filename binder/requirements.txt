@@ -1,1 +1,2 @@
 matplotlib==3.6.3
+numpy==1.26.4

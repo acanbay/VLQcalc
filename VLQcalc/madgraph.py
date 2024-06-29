@@ -435,3 +435,5 @@ class MG5:
 
         with open(f'{name}.dat', 'w') as f:
             f.write(self.text)
+        
+        print(f'\n{name}.dat is created!\n')

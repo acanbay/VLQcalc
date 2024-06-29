@@ -1,0 +1,21 @@
+import model VLQ_v4_UFO_4FNS_UFO-3rdL
+define VLB = bp bp~
+define WW = w+ w-
+define tt = t t~
+define bb = b b~
+generate p p > VLB j, (VLB > WW tt, tt > WW bb)
+add process p p > VLB j bb, (VLB > WW tt, tt > WW bb)
+output mg5_input_card
+launch mg5_input_card
+shower=Pythia8
+detector=Delphes
+analysis=OFF
+madspin=OFF
+reweight=OFF
+done
+set Nevents 1000
+set MTP scan1:[1000, 1200, 1400, 1600, 1800, 2000]
+set KTLh3 scan1:[1.612108, 1.603489, 1.598484, 1.59531, 1.593167, 1.59165]
+set KTLw3 scan1:[0.383996, 0.319984, 0.274267, 0.239981, 0.213315, 0.191983]
+set KTLz3 scan1:[0.401893, 0.330215, 0.280663, 0.244246, 0.216301, 0.194155]
+done

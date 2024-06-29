@@ -22,6 +22,15 @@ By clicking on the '*launch binder*' button above, the module can be run online 
 
 [Click here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
 
+<br>
+
+**Installation:**
+
+Download the [latest release](https://github.com/acanbay/VLQcalc/releases), extract it, enter the extracted file, and run the following command via the console.
+```console
+python setup.py install
+```
+
 ---
 
 <br>

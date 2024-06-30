@@ -1,12 +1,12 @@
 import VLQcalc.model as model
 
-Mass = [1000, 1500, 2000]
-branchings = [0.25, 0.5, 0.25] # [BR(Hq), BR(Wq), BR(Zq)]
 vlq = model.VLQ('B')
+Mass = [1000, 1500, 2000]
 vlq.setMass( Mass )
 
 ###################################
 kB = 0.5
+branchings = [0.25, 0.5, 0.25] # [BR(Hq), BR(Wq), BR(Zq)]
 vlq.convertModel(kB, branchings)  # converts kappa from VLQ_UFO to VLQ_v4_UFO
 
 print('\nVLQ_v4_UFO:')

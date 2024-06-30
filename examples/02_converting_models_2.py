@@ -1,7 +1,7 @@
 import VLQcalc.model as model
 
-Mass = [1000, 1500, 2000]
 vlq = model.VLQ('Y', FNS=5, LR=True)
+Mass = [1000, 1500, 2000]
 vlq.setMass(Mass)
 
 ###################################

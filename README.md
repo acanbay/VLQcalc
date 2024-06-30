@@ -7,11 +7,9 @@
 >**a Python Module for Calculating Vector-like Quark Couplings**
 
 **Contributors:**
-Ali Can Canbay
-<a href="https://orcid.org/0000-0003-4602-473X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="Ali Can Canbay ORCID" width="15"></a>
+Ali Can Canbay<a href="https://orcid.org/0000-0003-4602-473X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="Ali Can Canbay ORCID" width="15"></a>
 &
-Orhan Cakir
-<a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="Orhan Cakir ORCID" width="15"></a> 
+Orhan Cakir<a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="Orhan Cakir ORCID" width="15"></a> 
 
 <br>
 

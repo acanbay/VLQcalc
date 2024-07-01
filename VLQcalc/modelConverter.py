@@ -26,7 +26,7 @@ import math
 MH=125.10 
 MW=80.379 
 MZ=91.1876
-gWeak =  0.65
+gWeak = 0.65
 v = 2*MW/gWeak
 ############
 def Lambda(a,b,c):

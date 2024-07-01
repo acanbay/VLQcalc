@@ -72,7 +72,7 @@ class optimizeKappas():
             else:
                 if random.random() < 0.33:
                     gene = offSpring[i] * random.gauss(1, self.sigma)
-                    if  0 < gene < 1:
+                    if 0 < gene < 1:
                         offSpring[i] = gene
         return offSpring
 

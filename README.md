@@ -14,7 +14,7 @@ Orhan Cakir<a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orc
 <br>
 
 It is capable of:
-* Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO $^{[2]}$ generated with FeynRules $^{[3]}$,
+* Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO $^{[2]}$ prepared within the FeynRules $^{[3]}$ framework,
 * Calculating VLQ decay widths,
 * Computing coupling constants for width-to-mass ratio ($\Gamma/m$),
 * Generating MadGraph5 $^{[4]}$ input card.

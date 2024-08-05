@@ -1,4 +1,4 @@
-import model VLQ_v4_UFO_4FNS_UFO-3rdL
+import model VLQ_v4_4FNS_UFO-3rdL
 define VLB = bp bp~
 define WW = w+ w-
 define tt = t t~

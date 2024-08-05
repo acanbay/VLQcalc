@@ -27,7 +27,7 @@ class MG5:
             self.model = 'VLQ_UFO'
             self.text = 'import model VLQ_UFO\n'
         elif model.upper() == 'VLQ_V4_UFO':
-            self.model = 'VLQ_v4_UFO'
+            self.model = 'VLQ_v4_'
             self.text = f'import model {self.model}_{VLQ.FNS}FNS_UFO-3rd'
             if VLQ.LR:
                 self.text += '\n'

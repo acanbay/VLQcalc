@@ -1,5 +1,5 @@
 # VLQcalc 
-[![DOI](https://zenodo.org/badge/803805406.svg)](https://zenodo.org/doi/10.5281/zenodo.12594620) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb)
+
 
 <!--- 
 [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?style=flat&logo=arxiv&logoColor=red)](https://arxiv.org/abs/1234.56789)
@@ -11,6 +11,8 @@
 Ali Can Canbay<a href="https://orcid.org/0000-0003-4602-473X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="Ali Can Canbay ORCID" width="15"></a>
 &
 Orhan Cakir<a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="Orhan Cakir ORCID" width="15"></a> 
+
+[![DOI](https://zenodo.org/badge/803805406.svg)](https://zenodo.org/doi/10.5281/zenodo.12594620) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb)
 
 <br>
 

@@ -6,12 +6,9 @@ This module contains the kappa calculation methods.
 calcRatioKappas calculates kappas based on Gamma/Mass ratios using a modified genetic algorithm [1].
 
 ====REFERENCES====
-[1] Canbay, A. C., (2022). 
-    Optimizing KB-mirror Parameters in XRayTracer with Modified Genetic Algorithm. 
-    International Hybrid Workshop on 'Start-to-End Beamline Optimization for Synchrotron Radiation and 
-    Free-Electron Laser Facilities through Artificial Intelligence Approaches', 23-24 November 2022, 
-    DESY-Hamburg-Germany.
-    https://indico.desy.de/event/36469/
+[1] Canbay, A. C. modifiedGA (Version 0.1.0) [Computer software]. 
+    https://doi.org/10.5281/zenodo.12569505
+    https://github.com/acanbay/modifiedGA
 
 '''
 import random, math, cmath

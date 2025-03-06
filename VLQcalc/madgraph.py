@@ -267,7 +267,7 @@ class MG5:
             self.text += input+'\n'
         
         ###############################
-        if self.model == 'VLQ_v4_UFO':
+        if self.model == 'VLQ_v4':
             if self.VLQ.type == 'VLT':
                 if self.VLQ.Mass != None:
                     self.text += f'set MTP scan1:{list(self.VLQ.Mass)}\n'

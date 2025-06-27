@@ -116,7 +116,7 @@ decayW = vlq.calcDecay( Mass, Kappa, LR )
 It is used to calculate the couplings according to the $\Gamma_Q/m_Q$ ratio.<br>
 *It only works with the **VLQ_v4_UFO** model. Couplings can be converted to VLQ_UFO model after calculations are made according to this model.*
 
-The **modified Genetic Algorithm (mGA)** $^{[5]}$ is used to calculate couplings according to the $\Gamma_Q/m_Q$ ratio.
+The **modified Genetic Algorithm (modifiedGA)** $^{[6]}$ is used to calculate couplings according to the $\Gamma_Q/m_Q$ ratio.
 
 ```python
 vlq.calcRatioKappas( BRs, Ratio )

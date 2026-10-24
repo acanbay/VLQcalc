@@ -17,6 +17,16 @@ The 1st and 2nd generation quarks are massless. The top quark has $m_t$ in both 
 
 Decays into another VLQ (for example $T \to W B$ in VLQ_v5) are not included.
 
+## Couplings in the Lagrangian
+
+In VLQ_v4_UFO and VLQ_v5_UFO [2] the interactions of a T quark with the SM quarks are
+
+$$\mathcal{L}_T = \frac{g}{\sqrt{2}}\, W^+_\mu\, \bar{T} \gamma^\mu \left(\kappa^W_{L,i} P_L + \kappa^W_{R,i} P_R\right) d_i + \frac{g}{2c_W}\, Z_\mu\, \bar{T} \gamma^\mu \left(\kappa^Z_{L,i} P_L + \kappa^Z_{R,i} P_R\right) u_i + H\, \bar{T} \left(\kappa^H_{L,i} P_L + \kappa^H_{R,i} P_R\right) u_i + \mathrm{h.c.},$$
+
+summed over the generations $i = 1, 2, 3$, with $g = e/s_W$ and $P_{L,R} = (1 \mp \gamma^5)/2$. For B the up- and down-type quarks are exchanged ($W^-$ with $u_i$; $Z$ and $H$ with $d_i$); X couples through $W^+$ to $u_i$ and Y through $W^-$ to $d_i$.
+
+Each $\kappa$ is one parameter of the model, for example $\kappa^W_{L,3}$ of T is `KTLw3` (see [Models](models.md#vlq_v4_ufo-and-vlq_v5_ufo)). The Higgs couplings $\kappa^H$ multiply the Yukawa-type vertex directly, without a factor $M/v$. These are the couplings that VLQcalc computes.
+
 ## Partial widths
 
 Each channel has a left-handed coupling $\kappa_L$ and a right-handed coupling $\kappa_R$. With `LR=False` only $\kappa_L$ is used ($\kappa_R = 0$); with `LR=True` both are used and $\kappa_R = \kappa_L$.
@@ -89,6 +99,14 @@ constants.setSM()                    # back to the defaults
 ```
 
 $m_W$ cannot be set directly, because it is not an independent parameter of the models.
+
+## Choosing the settings
+
+**Flavour scheme (`FNS`).** In the 4-flavour scheme the b quark is massive and is not a parton of the proton; in the 5-flavour scheme it is massless and has a parton density. The scheme should be the same as the one of the model folder and the PDF set used for the event generation. In VLQcalc it changes only $m_b$ in the widths: for $\Gamma/M = 0.05$ the couplings of the two schemes differ by less than 0.04% at $M = 300$ GeV and less than 0.004% at $M = 1$ TeV.
+
+**Chirality (`LR`).** In the minimal models with one VLQ multiplet, the mixing with the SM quarks is mainly left-handed for the singlets (T, B) and mainly right-handed for the doublets ((X T), (T B), (B Y)); the other chirality is suppressed by $m_q/M$ [7]. With `LR=False` VLQcalc computes one coupling per channel and writes it to the left-handed parameters (`KTLw3`, ...). Because the widths depend on $\kappa_L^2 + \kappa_R^2$ and on the product $\kappa_L \kappa_R$, a purely right-handed coupling gives the same widths as a purely left-handed coupling of the same value; the angular distributions of the decay products differ. For a right-handed scenario, the computed couplings can therefore be used for the right-handed parameters (`KTRw3`, ...), which have to be set in the card by hand. `LR=True` sets $\kappa_R = \kappa_L$.
+
+**Width (`Ratio`).** The couplings are computed from the total width at the given mass. For small $\Gamma/M$ the production and the decay of the VLQ factorise (narrow width approximation). For larger widths the off-shell contributions and the interference with SM processes change the cross sections and the distributions, and the full process should be simulated [8].
 
 ## Validation
 

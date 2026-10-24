@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0
+## 0.2.0 (2026-10-25)
 
 Scripts written for 0.1.x keep working without changes. Some numerical results change; the reasons are listed under *Results that change*.
 
@@ -33,7 +33,8 @@ Scripts written for 0.1.x keep working without changes. Some numerical results c
 - Support for VLQ_v5_UFO in `MG5`.
 - `VLQcalc.constants` with `setSM(...)` and `getSM()` to change the SM inputs, for example when the param_card of MadGraph5 is changed.
 - `vlq.table()`, `vlq.save(filename)` and `vlq.plot(...)` for tables, files (Markdown, CSV, JSON, text) and plots.
-- Installation with pip (`pyproject.toml`), a test suite, and documentation in `docs/`.
+- Installation with pip (`pyproject.toml`) or `python setup.py install`, and releases on PyPI.
+- A test suite and documentation in `docs/`.
 
 ### Changed
 

@@ -1,6 +1,6 @@
 # API reference
 
-Wrong arguments raise `ValueError` with a message that names the method and the expected input.
+Masses and widths are in GeV; couplings and branching ratios are dimensionless. Wrong arguments raise `ValueError` with a message that names the method and the expected input.
 
 ## `VLQcalc.model.VLQ`
 
@@ -30,7 +30,7 @@ Computes the couplings that give the width-to-mass ratio `Ratio` and the branchi
 
 | Argument | T, B | X, Y |
 |-|-|-|
-| `BRs` | `[BR(H), BR(W), BR(Z)]`, sum 1 | not used (`None`) |
+| `BRs` | T: `[BR(Ht), BR(Wb), BR(Zt)]`<br>B: `[BR(Hb), BR(Wt), BR(Zb)]`<br>sum 1 | not used (`None`) |
 | `Ratio` | $\Gamma/M$ | $\Gamma/M$ |
 | `zeta` | generation fractions `[ζ1, ζ2, ζ3]`, sum 1; default `[0, 0, 1]` | same |
 
@@ -80,6 +80,25 @@ Writes the results to a file; the format follows the extension:
 | `.txt` | aligned text table, settings as `#` comment lines |
 | `.csv` | comma-separated table, settings as `#` comment lines |
 | `.json` | settings, masses, all non-zero couplings with the model names, widths, `KappaOld` |
+
+A JSON file for a T quark with two masses (the widths are rounded here; the file has full precision):
+
+```json
+{
+  "VLQ": "T (charge 2/3)",
+  "FNS": 4,
+  "couplings": "left-handed",
+  "Gamma/M": 0.05,
+  "branchings": {"BR(Ht)": 0.5, "BR(Wb)": 0.25, "BR(Zt)": 0.25},
+  "zeta": [0, 0, 1],
+  "SM inputs": {"MZ": 91.1876, "aEWM1": 127.9, "Gf": 1.16637e-05, "Mt": 172.0, "Mb": 4.7, "MH": 125.0, "MW": 79.8244},
+  "mass": [1000, 1500],
+  "kappas": {"KTLh3": [1.61204, 1.59671], "KTLw3": [0.195189, 0.130117], "KTLz3": [0.288764, 0.187702]},
+  "width": [50.000005, 74.999937]
+}
+```
+
+`kappa VLQ_UFO` is added after a conversion. The widths are total widths in GeV, computed from the rounded couplings, so they agree with Γ/M × M to about 6 digits.
 
 ### `plot(quantity='kappa', save=None, ax=None, logy=None)`
 

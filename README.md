@@ -12,7 +12,7 @@
 
 <p align="center">
   Ali Can Canbay <a href="https://orcid.org/0000-0003-4602-473X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="ORCID" width="15"></a>
-  &middot;
+  &emsp;&middot;&emsp;
   Orhan Cakir <a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="ORCID" width="15"></a>
 </p>
 

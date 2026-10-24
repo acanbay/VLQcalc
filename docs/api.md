@@ -49,7 +49,7 @@ Converts couplings between VLQ_UFO and VLQ_v4/VLQ_v5; see [Models](models.md#con
 
 ### `calcDecay(Mass, Kappas, LR)`
 
-Partial widths for the 3rd generation, unchanged from version 0.1.x:
+Partial widths for the 3rd generation:
 
 ```python
 decayH, decayW, decayZ, Gamma = vlq.calcDecay(1500, [kH, kW, kZ], False)   # T, B

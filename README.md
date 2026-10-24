@@ -1,21 +1,17 @@
-<h1 align="center">VLQcalc</h1>
+# VLQcalc
 
-<p align="center"><b>a Python Module for Calculating Vector-like Quark Couplings</b></p>
+**a Python Module for Calculating Vector-like Quark Couplings**
 
-<p align="center">
-  <a href="https://github.com/acanbay/VLQcalc/actions/workflows/tests.yml"><img src="https://github.com/acanbay/VLQcalc/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <a href="https://pypi.org/project/VLQcalc/"><img src="https://img.shields.io/pypi/v/VLQcalc.svg" alt="PyPI"></a>
-  <a href="https://www.python.org"><img src="https://img.shields.io/badge/python-3.9%2B-blue.svg" alt="Python 3.9+"></a>
-  <a href="https://github.com/acanbay/VLQcalc/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://doi.org/10.5281/zenodo.12594620"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.12594620.svg" alt="DOI"></a>
-  <a href="https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Binder"></a>
-</p>
+[![Tests](https://github.com/acanbay/VLQcalc/actions/workflows/tests.yml/badge.svg)](https://github.com/acanbay/VLQcalc/actions/workflows/tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/VLQcalc.svg)](https://pypi.org/project/VLQcalc/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/acanbay/VLQcalc/blob/main/LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12594620.svg)](https://doi.org/10.5281/zenodo.12594620)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb)
 
-<p align="center">
-  Ali Can Canbay <a href="https://orcid.org/0000-0003-4602-473X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="ORCID" width="15"></a>
-  &emsp;&middot;&emsp;
-  Orhan Cakir <a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="ORCID" width="15"></a>
-</p>
+Ali Can Canbay <a href="https://orcid.org/0000-0003-4602-473X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="ORCID" width="15"></a>
+and
+Orhan Cakir <a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orcid.org/assets/vectors/orcid.logo.icon.svg" alt="ORCID" width="15"></a>
 
 <!---
 [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg?style=flat&logo=arxiv&logoColor=red)](https://arxiv.org/abs/1234.56789)
@@ -33,8 +29,6 @@ VLQcalc works with the vector-like quark (VLQ) models VLQ_UFO [1], VLQ_v4_UFO an
 
 The [tutorial](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) can be run online with Binder [5] by clicking the *launch binder* button above.
 
-> Version 0.2.0 changes some numerical results with respect to 0.1.x, because the SM inputs now follow the models. See the [changelog](https://github.com/acanbay/VLQcalc/blob/main/CHANGELOG.md).
-
 <br>
 
 ## Installation
@@ -44,7 +38,7 @@ pip install VLQcalc            # core package, no dependencies
 pip install "VLQcalc[plot]"    # with matplotlib for plots
 ```
 
-Python 3.9 or newer is needed. The package name is not case-sensitive for pip (`pip install vlqcalc` works as well); in Python it is imported as `VLQcalc`.
+Python 3.9 or newer is needed.
 
 From a copy of this repository, run one of the following in its main folder:
 
@@ -80,9 +74,19 @@ mg5.createMG5Input('tp_pair')                # writes tp_pair.dat
 Couplings to lighter quarks are set with the generation fractions ζ<sub>i</sub>, for example 20% of the decays into 2nd generation quarks:
 
 ```python
+vlq.setMass([1000, 1500, 2000])
 vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05, zeta=[0, 0.2, 0.8])
-vlq.Kappas['KTLw2']                          # every coupling, named as in the model
+print(vlq.table('txt'))
 ```
+
+```
+M [GeV]    k_H(c)   k_H(t)     k_W(s)    k_W(b)     k_Z(c)    k_Z(t)  Gamma [GeV]
+   1000  0.720235  1.44185  0.0872882  0.174582   0.123449  0.258278      49.9998
+   1500  0.713939  1.42814  0.0581893   0.11638  0.0822928  0.167886      74.9999
+   2000  0.711762  1.42361  0.0436416  0.087284  0.0617187   0.12482          100
+```
+
+`table('txt')` prints the settings as comment lines above the table; they are left out here. Each coupling is also available under its name in the model, for example `vlq.Kappas['KTLw2']` for T–W–s (left-handed).
 
 More examples are in the [examples](https://github.com/acanbay/VLQcalc/tree/main/examples) folder.
 

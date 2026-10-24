@@ -13,9 +13,6 @@
 **The width computed by MadGraph5 is not the requested Γ/M.**
 The card does not set the VLQ width, so MadGraph5 uses the value of the param_card unless `mg5.addInput('WTP auto')` (`WBP`, `WX`, `WY`) is added. If the SM inputs of the param_card were changed, the same values have to be given with `constants.setSM(...)` before the couplings are computed.
 
-**The numbers differ from version 0.1.x.**
-Since 0.2.0 the SM inputs follow the models, so the widths agree with MadGraph5. The couplings for a given Γ/M change by up to 1.7%. The [changelog](../CHANGELOG.md) lists every change.
-
 **`ValueError: ... is kinematically closed`.**
 A channel with a non-zero branching ratio is below its threshold, for example $T \to H t$ for $M < m_H + m_t = 297$ GeV. Set the branching ratio of this channel to zero or use a larger mass.
 

@@ -32,7 +32,7 @@ vlq.Kappas['KTLw2']   # coupling to the s quark
 vlq.Kappas['KTRw3']   # zeros, because LR=False
 ```
 
-`vlq.KappaH`, `vlq.KappaW` and `vlq.KappaZ` hold the couplings to 3rd generation quarks, as in version 0.1.x. The couplings to lighter quarks are in `vlq.KappaLight`, a dictionary with keys `(boson, generation)`.
+`vlq.KappaH`, `vlq.KappaW` and `vlq.KappaZ` hold the couplings to 3rd generation quarks. The couplings to lighter quarks are in `vlq.KappaLight`, a dictionary with keys `(boson, generation)`.
 
 ## VLQ_UFO
 

@@ -69,8 +69,6 @@ $$\kappa_{V,i} = \sqrt{\frac{\zeta_i\, \mathrm{BR}_V\, (\Gamma/M)\, M}{\Gamma(Q 
 
 The couplings are rounded to 6 significant digits. A channel with a non-zero branching ratio that is kinematically closed (for example $T \to Ht$ for $M < m_H + m_t$) raises a `ValueError`.
 
-Up to version 0.1.2 the couplings were found with a modified genetic algorithm [6]. With the same SM inputs, the couplings of version 0.1.2 differ from the exact solution by less than $10^{-5}$ (relative), so the change of method does not change the results; the SM inputs do (see the [changelog](../CHANGELOG.md)).
-
 ## SM inputs
 
 The default inputs are those of the restriction cards of VLQ_v4 and VLQ_v5:

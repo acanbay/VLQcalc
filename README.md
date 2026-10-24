@@ -3,9 +3,10 @@
 <p align="center"><b>a Python Module for Calculating Vector-like Quark Couplings</b></p>
 
 <p align="center">
+  <a href="https://github.com/acanbay/VLQcalc/actions/workflows/tests.yml"><img src="https://github.com/acanbay/VLQcalc/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
   <a href="https://pypi.org/project/VLQcalc/"><img src="https://img.shields.io/pypi/v/VLQcalc.svg" alt="PyPI"></a>
   <a href="https://www.python.org"><img src="https://img.shields.io/badge/python-3.9%2B-blue.svg" alt="Python 3.9+"></a>
-  <a href="https://github.com/acanbay/VLQcalc/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0"></a>
+  <a href="https://github.com/acanbay/VLQcalc/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://doi.org/10.5281/zenodo.12594620"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.12594620.svg" alt="DOI"></a>
   <a href="https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Binder"></a>
 </p>

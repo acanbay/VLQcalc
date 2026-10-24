@@ -13,7 +13,7 @@ authors:
   
 date-released: '2026-10-25'
 doi: 10.5281/zenodo.12594620
-license: GPL-3.0-only
+license: MIT
 type: software
 identifiers:
   - description: All versions (resolves to the latest version)

@@ -38,6 +38,8 @@ Scripts written for 0.1.x keep working without changes. Some numerical results c
 
 ### Changed
 
+- The license is MIT instead of GPL-3.0. Versions up to 0.1.2 remain under GPL-3.0.
+
 - Wrong inputs raise `ValueError` with the same messages as before, instead of printing the message and stopping Python with `sys.exit`. Scripts stop in the same way, and notebooks keep running.
 - Warnings about replaced couplings are issued with the `warnings` module.
 - The Binder environment uses Python 3.12.

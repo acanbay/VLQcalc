@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "VLQcalc"
+dynamic = ["version"]
+description = "Coupling constants, decay widths and MadGraph5 input cards for vector-like quark models"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Ali Can Canbay", email = "acanbay@ankara.edu.tr"},
+    {name = "Orhan Cakir"},
+]
+keywords = ["vector-like quark", "coupling", "decay width", "narrow width approximation", "MadGraph5", "FeynRules"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.5"]
+test = ["pytest>=7", "numpy"]
+
+[project.urls]
+Homepage = "https://github.com/acanbay/VLQcalc"
+Documentation = "https://github.com/acanbay/VLQcalc/tree/main/docs"
+Changelog = "https://github.com/acanbay/VLQcalc/blob/main/CHANGELOG.md"
+DOI = "https://doi.org/10.5281/zenodo.12594620"
+
+[tool.setuptools]
+packages = ["VLQcalc"]
+
+[tool.setuptools.dynamic]
+version = {attr = "VLQcalc.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]

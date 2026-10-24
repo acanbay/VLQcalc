@@ -22,12 +22,22 @@ Converts parameters between VLQ_UFO model [1,2] and VLQ_v4_#FNS_UFO (#: 4 or 5) 
 
 '''
 import math
+from VLQcalc import constants
 ############
-MH=125.10 
-MW=80.379 
+# SM inputs of the VLQ_UFO param_card [2]; MW, gWeak and v are derived as in that model
+MH=125.
 MZ=91.1876
-gWeak = 0.65
+aEW=1./127.9
+Gf=1.166e-5
+MW=math.sqrt(MZ**2/2. + math.sqrt(MZ**4/4. - (aEW*math.pi*MZ**2)/(Gf*math.sqrt(2))))
+sw=math.sqrt(1 - MW**2/MZ**2)
+cw=math.sqrt(1 - sw**2)
+gWeak = 2*math.sqrt(aEW*math.pi)/sw
 v = 2*MW/gWeak
+def gaugeRatios():
+    # Ratios of the W and Z gauge factors of VLQ_UFO to those of VLQ_v4 (constants.py)
+    gV4 = (constants.ee/constants.sw).real
+    return gWeak/gV4, (gWeak/cw)/(gV4/constants.cw.real)
 ############
 def Lambda(a,b,c):
     return a**2 + b**2 + c**2 - 2*a*b - 2*a*c - 2*b*c
@@ -47,47 +57,53 @@ def GammaZ(MVLQ,mq=0):
     c = MZ**2/MVLQ**2
     return math.sqrt(Lambda(a,b,c))*( (1-b)**2 + c - 2*c**2 + b*c )/2
 ############
+def zetaShare(VLQ):
+    # VLQ_UFO normalises the zeta parameters to 1; with LR the coupling is shared equally (zetaL = zetaR = 0.5)
+    return 0.5 if VLQ.LR else 1.
+
+def vertexFactor(boson,MVLQ):
+    # kappa(VLQ_v4) = kappa(VLQ_UFO) * sqrt(zeta_i * xi_V) * vertexFactor, from matching the vertices of both models
+    if boson == 'h':
+        return (MVLQ/v)*math.sqrt(1/GammaH(MVLQ))
+    if boson == 'w':
+        return math.sqrt(1/GammaW(MVLQ))*gaugeRatios()[0]
+    return math.sqrt(1/GammaZ(MVLQ))*gaugeRatios()[1]
+
 def convert(VLQ,Kappas,BRs=1,reverse=False):
+    # reverse=False: returns {(boson, generation): [kappa per mass]} for VLQ_v4 from the VLQ_UFO kappa (Kappas)
+    # reverse=True : returns the VLQ_UFO kappa per mass from the VLQ_v4 couplings stored in VLQ
+    z = zetaShare(VLQ)
+    bosons = VLQ.bosons
+    xis = BRs if type(BRs) == list else [BRs]
     if not reverse:
-        if VLQ.type in ['VLX','VLY']:
-            kappaWs=[]
-            for MVLQ in VLQ.Mass:
-                kappaWs.append( Kappas*(math.sqrt(1/GammaW(MVLQ))) )
-            return kappaWs
-        ###
-        else:
-            kappaHs=[]
-            kappaWs=[]
-            kappaZs=[]
-            for MVLQ in VLQ.Mass:
-                kappaHs.append( Kappas*((MVLQ/v)*math.sqrt(BRs[0]/GammaH(MVLQ))) )
-                kappaWs.append( Kappas*(math.sqrt(BRs[1]/GammaW(MVLQ))) )
-                kappaZs.append( Kappas*(math.sqrt(BRs[2]/GammaZ(MVLQ))) )
-            return kappaHs, kappaWs, kappaZs
+        kappas = {}
+        for boson, xi in zip(bosons, xis):
+            for gen, zeta in enumerate(VLQ.zeta, start=1):
+                kappas[(boson,gen)] = [Kappas*math.sqrt(z*zeta*xi)*vertexFactor(boson,MVLQ) for MVLQ in VLQ.Mass]
+        return kappas
     ######
-    else:
-        if VLQ.type in ['VLX','VLY']:
-            KappaOld=[]
-            for i in range(len(VLQ.Mass)):
-                KappaOld.append( Kappas[i]/(math.sqrt(1/GammaW(VLQ.Mass[i]))) )
-            return KappaOld
-        ###
+    KappaOld=[]
+    xisPerMass=[[] for boson in bosons]
+    for i, MVLQ in enumerate(VLQ.Mass):
+        widths = VLQ.calcWidths(i)
+        Gamma = sum(widths.values())
+        couplings = {}
+        third = {'h': VLQ.KappaH, 'w': VLQ.KappaW, 'z': VLQ.KappaZ}
+        for (boson,gen) in widths:
+            values = third[boson] if gen == 3 else VLQ.KappaLight.get((boson,gen), [0]*len(VLQ.Mass))
+            couplings[(boson,gen)] = values[i]
+        kappa = []
+        for channel, width in widths.items():
+            BR = width/Gamma if Gamma > 0 else 0
+            if BR != 0:
+                kappa.append( couplings[channel]/(math.sqrt(z*BR)*vertexFactor(channel[0],MVLQ)) )
+        for xi, boson in zip(xisPerMass, bosons):
+            xi.append( round(sum(w for (b,g), w in widths.items() if b == boson)/Gamma, 6) if Gamma > 0 else 0 )
+        if len(kappa)!=0:
+            KappaOld.append( sum(kappa)/len(kappa) )
         else:
-            KappaOld=[]
-            for i in range(len(VLQ.Mass)):
-                DH, DW, DZ, Gamma = VLQ.calcDecay(VLQ.Mass[i],[ Kappas[0][i],Kappas[1][i],Kappas[2][i] ],VLQ.LR)
-                BRH = DH/Gamma
-                BRW = DW/Gamma
-                BRZ = DZ/Gamma
-                kappa = []
-                if BRH!=0:
-                    kappa.append( Kappas[0][i]/((VLQ.Mass[i]/v)*math.sqrt(BRH/GammaH(VLQ.Mass[i]))) )
-                if BRW!=0:
-                    kappa.append( Kappas[1][i]/(math.sqrt(BRW/GammaW(VLQ.Mass[i]))) )
-                if BRZ!=0:
-                    kappa.append( Kappas[2][i]/(math.sqrt(BRZ/GammaZ(VLQ.Mass[i]))) )
-                if len(kappa)!=0:
-                    KappaOld.append( sum(kappa)/len(kappa) )
-                else:
-                    KappaOld.append(0)
-            return KappaOld
+            KappaOld.append(0)
+    if VLQ.BRs == None and VLQ.type in ['VLT','VLB']:
+        # Branchings per mass, needed as xi parameters for the VLQ_UFO card
+        VLQ.BRs = xisPerMass
+    return KappaOld

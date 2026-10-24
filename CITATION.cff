@@ -12,10 +12,16 @@ authors:
   orcid: "https://orcid.org/0000-0002-9016-138X"
   
 date-released: '2024-29-06'
-doi: 10.5281/zenodo.12594621
+doi: 10.5281/zenodo.12594620
 license: GPL-3.0-only
 type: software
 identifiers:
-  - description: Zenodo release
+  - description: All versions (resolves to the latest version)
+    type: doi
+    value: "10.5281/zenodo.12594620"
+  - description: Version 0.1.2
     type: doi
     value: "10.5281/zenodo.14984010"
+  - description: Version 0.1.0
+    type: doi
+    value: "10.5281/zenodo.12594621"

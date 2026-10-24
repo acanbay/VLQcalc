@@ -1,4 +1,4 @@
-# VLQcalc  [![DOI](https://zenodo.org/badge/803805406.svg)](https://zenodo.org/doi/10.5281/zenodo.14984010) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb)
+# VLQcalc  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12594620.svg)](https://doi.org/10.5281/zenodo.12594620) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/acanbay/VLQcalc/HEAD?labpath=binder%2Ftutorial.ipynb)
 
 
 <!--- 
@@ -14,161 +14,81 @@ Orhan Cakir<a href="https://orcid.org/0000-0002-9016-138X"><img src="https://orc
 
 <br>
 
-It is capable of:
-* Converting coupling constants between models VLQ_UFO $^{[1]}$ and VLQ_v4_UFO $^{[2]}$ prepared within the FeynRules $^{[3]}$ framework,
-* Calculating VLQ decay widths,
-* Computing coupling constants for width-to-mass ratio ($\Gamma/m$),
-* Generating MadGraph5 $^{[4]}$ input card.
+VLQcalc works with the vector-like quark (VLQ) models VLQ_UFO $^{[1]}$, VLQ_v4_UFO and VLQ_v5_UFO $^{[2]}$, which were prepared with FeynRules $^{[3]}$. It can:
+* compute the couplings that give a chosen width-to-mass ratio ($\Gamma/M$) and chosen branching ratios,
+* compute partial and total decay widths, with the same formulas and SM inputs as the models,
+* include couplings to the 1st and 2nd generation quarks,
+* convert couplings between VLQ_UFO and VLQ_v4_UFO/VLQ_v5_UFO,
+* write MadGraph5 $^{[4]}$ input cards,
+* write the results as tables (Markdown, CSV, JSON, text) and plots.
+
+The [tutorial](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) can be run online with Binder $^{[5]}$ by clicking the *launch binder* button above.
+
+> Version 0.2.0 changes some numerical results with respect to 0.1.x, because the SM inputs now follow the models. See the [changelog](https://github.com/acanbay/VLQcalc/blob/main/CHANGELOG.md).
 
 <br>
 
-By clicking on the '*launch binder*' button above, the module can be run online with Binder $^{[5]}$.
+## Installation
 
-[Click here](https://github.com/acanbay/VLQcalc/blob/main/binder/tutorial.ipynb) for the tutorial.
-
-<br>
-
-**Installation:**
-
-Download the [latest release](https://github.com/acanbay/VLQcalc/releases), extract it, enter the extracted file, and run the following command via the console.
 ```console
-python setup.py install
+pip install VLQcalc            # core package, no dependencies
+pip install "VLQcalc[plot]"    # with matplotlib for plots
 ```
 
----
+Python 3.9 or newer is needed. To install from a copy of this repository, run `pip install .` in its main folder.
 
 <br>
 
-### VLQ Class
+## Quick start
 
-It is defined in the submodule named *model*.
 ```python
 import VLQcalc.model as model
-```
-<br>
-
-Creating a VLQ object:
-```python
-vlq = model.VLQ( VLQ_type, FNS, LR )
-```
-
-| Parameter | Format | Values | Default Value |
-|-|-|:-:|:-:|
-|VLQ_type|string|X, T, B, Y|-|
-|FNS|integer|4, 5|4|
-|LR|bool|True, False|False|
-
-* $m_{b}=0$ when `FNS=5`
-* ```LR=False``` allows calculations with only left-handed couplings, while ```LR=True``` allows calculations with both left and right-handed couplings.
-<br>
-
-#### `setMass` method:
-The mass is passed to the method as a single value or a list of values in integer or float data type in GeV unit.
-```python
-vlq.setMass( 1000 )
-vlq.setMAss( [1000,1500,2000] )
-```
-<br>
-
-#### `convertModel` method:
-It converts the couplings in VLQ_UFO and VLQ_v4_UFO models to each other.
-
-```python
-vlq.convertModel( Kappas, BRs, reverse )
-```
-
-| Parameter | Format | Values | Default Value |
-|-|-|:-:|:-:|
-|Kappas|float/integer or list|any|-|
-|BRs|float/integer or list|any|1|
-|reverse|bool|True, False|False|
-
-* `Kappas` is
-    * $\kappa_Q$ where Q is X, T, B or Y for converting couplings from VLQ_UFO to VLQ_v4_UFO.
-    * given in the list as $[\kappa_H, \kappa_W, \kappa_Z]$ for T and B, while it is only $\kappa_W$ for X and Y when converting couplings from VLQ_v4_UFO to VLQ_UFO.
-* For T and B, the parameter named `BRs` is given in the list as [BR(Q→Hq), BR(Q→Wq), BR(Q→Zq)] where q represents the 3rd family quarks of the Standard Model. Only BR(Q→Wq) is specified for X and Y.
-* When the `reverse` value is `False`, the conversion is from VLQ_UFO to VLQ_v4_UFO; when `True`, it is from VLQ_v4_UFO to VLQ_UFO.
-
-<br>
-
-#### `calcDecay` method:
-*It only works with the **VLQ_v4_UFO** model. Converted couplings can be used for VLQ_UFO model*
-<br><br>
-
-For T and B:
-```python
-decayH, decayW, decayZ, Gamma = vlq.calcDecay( Mass, Kappas, LR )
-```
-For X and Y:
-```python
-decayW = vlq.calcDecay( Mass, Kappa, LR )
-```
-| Parameter | Format | Values | Default Value |
-|-|-|:-:|:-:|
-|Mass|float/integer or list|any|-|
-|Kappas|list|any|-|
-|Kappa|float/integer|any|-|
-|LR|bool|True, False|False|
-
-<br>
-
-#### `calcRatioKappas` method:
-It is used to calculate the couplings according to the $\Gamma_Q/m_Q$ ratio.<br>
-*It only works with the **VLQ_v4_UFO** model. Couplings can be converted to VLQ_UFO model after calculations are made according to this model.*
-
-The **modified Genetic Algorithm (modifiedGA)** $^{[6]}$ is used to calculate couplings according to the $\Gamma_Q/m_Q$ ratio.
-
-```python
-vlq.calcRatioKappas( BRs, Ratio )
-```
-
-* Ratio is $\Gamma_Q/m_Q$ value.
-
-<br>
-
-### MG5 Class
-
-It is defined in the submodule named *madgraph*.
-```python
 import VLQcalc.madgraph as madgraph
+
+vlq = model.VLQ('T', FNS=4, LR=False)        # T quark, 4-flavour scheme, left-handed couplings
+vlq.setMass(range(1000, 2001, 100))          # masses in GeV
+vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05) # [BR(Ht), BR(Wb), BR(Zt)] and Gamma/M
+
+print(vlq.KappaH, vlq.KappaW, vlq.KappaZ)    # couplings to 3rd generation quarks, one value per mass
+print(vlq.table())                           # Markdown table of the results
+vlq.save('kappas.csv')                       # .md, .txt, .csv or .json
+vlq.plot(save='kappas.pdf')                  # needs matplotlib
+
+mg5 = madgraph.MG5(vlq, 'VLQ_v4_UFO')
+mg5.setProcess('p p > tp tp~, tp > w+ b')
+mg5.createMG5Input('tp_pair')                # writes tp_pair.dat
 ```
 
-Creating a MG5 object:
+Couplings to lighter quarks are set with the generation fractions $\zeta_i$, for example 20% of the decays into 2nd generation quarks:
+
 ```python
-mg5 = madgraph.MG5(VLQ, model)
-```
-* `model` parameter can be VLQ_UFO or VLQ_v4_UFO in string format.
-
-<br>
-
-In the MG5 object, there are two different methods for entering a process: `setProcess` and `addProcess` methods, which take their parameters as strings, are used respectively to define the main process and additional processes.
-```python
-mg5.setProcess( process )
-mg5.addProcess( process )
+vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05, zeta=[0, 0.2, 0.8])
+vlq.Kappas['KTLw2']                          # every coupling, named as in the model
 ```
 
-<br>
-MG5 object also have the properties in string format listed in the table below.
-
-| Property | Values | Default Value |
-|-|-|:-:|
-|shower|OFF, pythia8, ...|OFF|
-|detector|OFF, Delphes, ...|OFF|
-|analysis|OFF, ExRoot, MadAnalysis, ...|OFF|
-|madspin|OFF, ON, onshell, full|OFF|
-|reweight|OFF, ON|OFF|
+More examples are in the [examples](https://github.com/acanbay/VLQcalc/tree/main/examples) folder.
 
 <br>
 
-`addInput` method, which takes a string parameter, is used to define inputs that allow modifications to be made on simulation cards. After all definitions have been made, an MG5 input card can be generated using the `createMG5Input` method, which takes the output file name (in string format) as a parameter.
-```python
-mg5.addInput( input )
-mg5.createMG5Input( file_name )
+## Documentation
+
+| Page | Content |
+|-|-|
+| [API reference](https://github.com/acanbay/VLQcalc/blob/main/docs/api.md) | Classes, methods, arguments and attributes |
+| [Physics conventions](https://github.com/acanbay/VLQcalc/blob/main/docs/physics.md) | Decay widths, coupling calculation, generation fractions, SM inputs |
+| [Models](https://github.com/acanbay/VLQcalc/blob/main/docs/models.md) | Supported UFO models, their parameters, conversion between models |
+| [MadGraph5 cards](https://github.com/acanbay/VLQcalc/blob/main/docs/madgraph.md) | Writing input cards, what is written to them |
+
+<br>
+
+## Testing
+
+```console
+pip install "VLQcalc[test]"
+pytest
 ```
 
-<br>
-
-When creating an input card, the processes defined in `setProcess` and `addProcess` are expanded to include both particles and antiparticles.
+The tests compare the widths with the formulas shipped with the UFO models and check the cards, the conversions and the output files.
 
 <br>
 
@@ -181,5 +101,4 @@ When creating an input card, the processes defined in `setProcess` and `addProce
 3. N. D. Christensen and C. Duhr. Feynrules–Feynman rules made easy. *Computer Physics Communications*,180(9):1614–1641, 2009.
 4. J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, and T. Stelzer. Madgraph 5: going beyond. *Journal of High Energy Physics*, 2011(6):1–40, 2011.
 5. Jupyter et al. Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale. *Proceedings of the 17th Python in Science Conference*. 2018.
-6. A. C. Canbay. modifiedGA (Version 0.1.0) [Computer software]. [DOI: 10.5281/zenodo.12569505](https://doi.org/10.5281/zenodo.12569505), [GitHub: acanbay/modifiedGA](https://github.com/acanbay/modifiedGA)
-
+6. A. C. Canbay. modifiedGA (Version 0.1.0) [Computer software]. [DOI: 10.5281/zenodo.12569505](https://doi.org/10.5281/zenodo.12569505), [GitHub: acanbay/modifiedGA](https://github.com/acanbay/modifiedGA). Used for the couplings up to version 0.1.2.

@@ -11,28 +11,54 @@ MadGraph5_aMC@NLO [1].
     Journal of High Energy Physics, 2011(6), 1-40.
     https://launchpad.net/mg5amcnlo
 '''
-import sys
+import re
+
+# Multiparticle aliases written to the MG5 card
+ALIASES = {
+    'WW': ['w+', 'w-'], 'tt': ['t', 't~'], 'bb': ['b', 'b~'],
+    'VLT': ['tp', 'tp~'], 'VLB': ['bp', 'bp~'], 'VLX': ['x', 'x~'], 'VLY': ['y', 'y~'],
+    'ee': ['e-', 'e+'], 'mumu': ['mu-', 'mu+'], 'll': ['l-', 'l+'],
+    'veve': ['ve', 've~'], 'vmvm': ['vm', 'vm~'], 'vtvt': ['vt', 'vt~'], 'vlvl': ['vl', 'vl~'],
+}
+LABELS = {p: alias for alias, ps in ALIASES.items() for p in ps}
+# A label matches only as a whole particle name, so "tp~" is never read as "t"
+PATTERN = re.compile(
+    r'(?<![\w~+-])('
+    + '|'.join(re.escape(p) for p in sorted(LABELS, key=len, reverse=True))
+    + r')(?![\w~+-])')
+
+# Parameter names of the VLQ_UFO model
+OLD_MODEL = {'VLT': {'mass':'MTP', 'kappa':'KT', 'zeta':['zetaTu','zetaTc','zetaTt'], 'xi':['xitph','xitpw','xitpz']},
+             'VLB': {'mass':'MBP', 'kappa':'KB', 'zeta':['zetaBd','zetaBs','zetaBb'], 'xi':['xibph','xibpw','xibpz']},
+             'VLX': {'mass':'MX',  'kappa':'KX', 'zeta':['zetaXu','zetaXc','zetaXt'], 'xi':[]},
+             'VLY': {'mass':'MY',  'kappa':'KY', 'zeta':['zetaYd','zetaYs','zetaYb'], 'xi':[]}}
 
 class MG5:
+    '''
+    MadGraph5 input card for a VLQ object: MG5(VLQ, model='VLQ_v4_UFO')
+
+    model: 'VLQ_UFO', 'VLQ_v4_UFO' or 'VLQ_v5_UFO'
+    Run settings: shower, detector, analysis, madspin, reweight (default 'OFF')
+    '''
     def __init__(self,VLQ,model='VLQ_v4_UFO'):
         self.VLQ = VLQ
 
         # Checking the model
-        if model.upper() not in ['VLQ_UFO', 'VLQ_V4_UFO']:
-            print('\n!! Error: VLQ !!\nmodel must be one of the following:\n')
-            print('  VLQ_UFO')
-            print('  VLQ_v4_UFO')
-            sys.exit(1)
+        if type(model) != str or model.upper() not in ['VLQ_UFO', 'VLQ_V4_UFO', 'VLQ_V5_UFO']:
+            raise ValueError('MG5: model must be one of the following: VLQ_UFO, VLQ_v4_UFO, VLQ_v5_UFO')
         if model.upper() == 'VLQ_UFO':
             self.model = 'VLQ_UFO'
             self.text = 'import model VLQ_UFO\n'
         elif model.upper() == 'VLQ_V4_UFO':
-            self.model = 'VLQ_v4_'
-            self.text = f'import model {self.model}_{VLQ.FNS}FNS_UFO-3rd'
-            if VLQ.LR:
-                self.text += '\n'
-            else:
-                self.text += 'L\n'
+            self.model = 'VLQ_v4'
+            # The full model is imported (5FNS has no restriction cards, and couplings to all generations
+            # can be used); every coupling of the VLQ is written to the card in createMG5Input
+            self.text = f'import model {self.model}_{VLQ.FNS}FNS_UFO\n'
+        elif model.upper() == 'VLQ_V5_UFO':
+            # VLQ_v5 has the same couplings to SM quarks as VLQ_v4 (and the same decay formulas). Its couplings
+            # between two VLQs (KWTBL, KZTTL, ...) are zero by default and are not changed here.
+            self.model = 'VLQ_v5'
+            self.text = f'import model {self.model}_{VLQ.FNS}FNS_NLO_UFO\n'
 
         self.Identication = ''
         self.Process = []
@@ -44,207 +70,61 @@ class MG5:
         self.runInputs = []
 
     def correctText(self,text):
-        #W
-        if 'w+' in text or 'w-' in text:
-            if 'define WW' not in self.text:
-                self.text += 'define WW = w+ w-\n'
-            if 'w-' in text:
-                text = text.replace('w-', 'WW')
-            if 'w+' in text:
-                text = text.replace('w+', 'WW')
-        #t
-        if 't ' in text or 't,' in text or 't)' in text or 't>' in text or 't~' in text:
-            if 'define tt' not in self.text:
-                self.text += 'define tt = t t~\n'
-            if 't ' in text:
-                text = text.replace('t ', 'tt ')
-            if 't,' in text:
-                text = text.replace('t,', 'tt,')
-            if 't)' in text:
-                text = text.replace('t)', 'tt)')
-            if 't>' in text:
-                text = text.replace('t>', 'tt>')
-            if 't~' in text:
-                text = text.replace('t~', 'tt')
-        #b
-        if 'b ' in text or 'b,' in text or 'b)' in text or 'b>' in text or 'b~' in text:
-            if 'define bb' not in self.text:
-                self.text += 'define bb = b b~\n'
-            if 'b ' in text:
-                text = text.replace('b ', 'bb ')
-            if 'b,' in text:
-                text = text.replace('b,', 'bb,')
-            if 'b)' in text:
-                text = text.replace('b)', 'bb)')
-            if 'b>' in text:
-                text = text.replace('b>', 'bb >')
-            if 'b~' in text:
-                text = text.replace('b~', 'bb')
-        #tp
-        if 'tp' in text or 'tp~' in text:
-            if 'define VLT' not in self.text:
-                self.text += 'define VLT = tp tp~\n'
-            if 'tp' in text:
-                text = text.replace('tp', 'VLT')
-            if 'tp~' in text:
-                text = text.replace('tp~', 'VLT')
-        #bp
-        if 'bp' in text or 'bp~' in text:
-            if 'define VLB' not in self.text:
-                self.text += 'define VLB = bp bp~\n'
-            if 'bp' in text:
-                text = text.replace('bp', 'VLB')
-            if 'bp~' in text:
-                text = text.replace('bp~', 'VLB')
-        #x
-        if 'x' in text or 'x~' in text:
-            if 'define VLX' not in self.text:
-                self.text += 'define VLX = x x~\n'
-            if 'x' in text:
-                text = text.replace('x', 'VLX')
-            if 'x~' in text:
-                text = text.replace('x~', 'VLX')
-        #y
-        if 'y' in text or 'y~' in text:
-            if 'define VLY' not in self.text:
-                self.text += 'define VLY = y y~\n'
-            if 'y' in text:
-                text = text.replace('y', 'VLY')
-            if 'y~' in text:
-                text = text.replace('y~', 'VLY')
-
-        #e
-        if 'e-' in text or 'e+' in text:
-            if 'define ee' not in self.text:
-                self.text += 'define ee = e- e+\n'
-            if 'e-' in text:
-                text = text.replace('e-', 'ee')
-            if 'e+' in text:
-                text = text.replace('e+', 'ee')
-
-        #mu
-        if 'mu-' in text or 'mu+' in text:
-            if 'define mumu' not in self.text:
-                self.text += 'define mumu = mu- mu+\n'
-            if 'mu-' in text:
-                text = text.replace('mu-', 'mumu')
-            if 'mu+' in text:
-                text = text.replace('mu+', 'mumu')
-
-        #l
-        if 'l-' in text or 'l+' in text:
-            if 'define ll' not in self.text:
-                self.text += 'define ll = l- l+\n'
-            if 'l-' in text:
-                text = text.replace('l-', 'll')
-            if 'l+' in text:
-                text = text.replace('l+', 'll')
-
-        #ve
-        if 've' in text or 've~' in text:
-            if 'define veve' not in self.text:
-                self.text += 'define veve = ve ve~\n'
-            if 've' in text:
-                text = text.replace('ve ', 'veve')
-            if 've~' in text:
-                text = text.replace('ve~', 'veve')
-
-        #vm
-        if 'vm' in text or 'vm~' in text:
-            if 'define vmvm' not in self.text:
-                self.text += 'define vmvm = vm vm~\n'
-            if 'vm' in text:
-                text = text.replace('vm ', 'vmvm')
-            if 'vm~' in text:
-                text = text.replace('vm~', 'vmvm')
-
-        #vt
-        if 'vt' in text or 'vt~' in text:
-            if 'define vtvt' not in self.text:
-                self.text += 'define vtvt = vt vt~\n'
-            if 'vt' in text:
-                text = text.replace('vt ', 'vtvt')
-            if 'vt~' in text:
-                text = text.replace('vt~', 'vtvt')
-
-        #vl
-        if 'vl' in text or 'vl~' in text:
-            if 'define vlvl' not in self.text:
-                self.text += 'define vlvl = vl vl~\n'
-            if 'vl' in text:
-                text = text.replace('vl ', 'vlvl')
-            if 'vl~' in text:
-                text = text.replace('vl~', 'vlvl')
-        
-        return text
+        '''Replaces every particle name with its particle+antiparticle label and defines the label once'''
+        def replace(match):
+            alias = LABELS[match.group(1)]
+            if f'define {alias} ' not in self.text:
+                self.text += f'define {alias} = {" ".join(ALIASES[alias])}\n'
+            return alias
+        return PATTERN.sub(replace, text)
 
     def splitProcess(self, process):
-        proc= ''
-        veto = ''
-        decay = ''
-        if '/' in process:
-            idx_veto = process.find('/')
-            proc = self.correctText( process[:idx_veto])
-
-            if '(' in process[idx_veto:]:
-                idx_decay = process.find('(')
-                veto = self.correctText( process[idx_veto:idx_decay] )
-                decay = self.correctText( process[idx_decay:] )
-        
-        elif '(' in process:
-            idx_decay = process.find('(')
-            proc = self.correctText( process[:idx_decay] )
-            decay = self.correctText( process[idx_decay:] )
-
-        else:
-            proc = self.correctText( process )
-
-        return proc+veto+decay
+        # Kept for backward compatibility; labels are matched as whole names, so no splitting is needed
+        return self.correctText(process)
 
     def setProcess(self,process):
+        '''Defines the main process, e.g. 'p p > tp tp~' '''
         if 'generate' not in process:
             process = 'generate '+process
-        if '>' in process:
-            check = True
-        else:
-            check = False
-        #
-        if not check:
-            print('\n!! Error: setProcess !!\nWrong process\n')
-            sys.exit(1)
-        #
+        if '>' not in process:
+            raise ValueError(f'MG5.setProcess: Wrong process -> {process}')
         process = self.splitProcess(process)
         self.Process.append( process )
 
     def addProcess(self,process):
+        '''Adds a process after the main one'''
         if 'add process' not in process:
             process = 'add process '+process
-        #
-        if '>' in process:
-            check = True
-        else:
-            check = False
-        if not check:
-            print('\n!! Error: addProcess !!\nWrong process\n')
-            sys.exit(1)
-        #
-        if len(self.Process) > 0:
-            process = self.splitProcess(process)
-            self.Process.append( process )
-        else:
-            print('\n!! Error: addProcess !!\naddProcess cannot be used without defining the main process\n')
-            sys.exit(1)
-            
+        if '>' not in process:
+            raise ValueError(f'MG5.addProcess: Wrong process -> {process}')
+        if len(self.Process) == 0:
+            raise ValueError('MG5.addProcess: addProcess cannot be used without defining the main process')
+        process = self.splitProcess(process)
+        self.Process.append( process )
+
     def addInput(self, input):
+        '''Adds a setting for the run cards, e.g. 'nevents 10000' '''
         if 'set ' not in input:
             input = 'set '+input
         self.runInputs.append(input)
 
+    def setLine(self, name, values):
+        # One value per mass is written as a scan, otherwise the first value is used
+        if type(values) != list:
+            return f'set {name} {values}\n'
+        if all(value == 0 for value in values):
+            return f'set {name} 0\n'
+        if len(values) == len(self.VLQ.Mass):
+            return f'set {name} scan1:{values}\n'
+        return f'set {name} {values[0]}\n'
+
     def createMG5Input(self, name='mg5_input'):
+        '''Writes the card to name.dat'''
         if self.Process == []:
-            print('\n!! Error: createMG5Input !!\nProcess not defined\n')
-            sys.exit(1)
-        
+            raise ValueError('MG5.createMG5Input: Process not defined')
+        # Header (model import and defines) is restored at the end, so repeated calls do not duplicate the card
+        header = self.text
+
         for process in self.Process:
             self.text += process+'\n'
 
@@ -267,173 +147,43 @@ class MG5:
             self.text += input+'\n'
         
         ###############################
-        if self.model == 'VLQ_v4':
-            if self.VLQ.type == 'VLT':
-                if self.VLQ.Mass != None:
-                    self.text += f'set MTP scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaH != None and self.VLQ.KappaW != None and self.VLQ.KappaZ != None:
-                    if len(self.VLQ.KappaH)+len(self.VLQ.KappaW)+len(self.VLQ.KappaZ) != 3*len(self.VLQ.Mass):
-                        self.text += f'set KTLh3 {self.VLQ.KappaH[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KTRh3 {self.VLQ.KappaH[0]}\n'
-                        #
-                        self.text += f'set KTLw3 {self.VLQ.KappaW[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KTRw3 {self.VLQ.KappaW[0]}\n'
-                        #
-                        self.text += f'set KTLz3 {self.VLQ.KappaZ[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KTRz3 {self.VLQ.KappaZ[0]}\n'
-                    else:
-                        self.text += f'set KTLh3 scan1:{self.VLQ.KappaH}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KTRh3 scan1:{self.VLQ.KappaH}\n'
-                        #
-                        self.text += f'set KTLw3 scan1:{self.VLQ.KappaW}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KTRw3 scan1:{self.VLQ.KappaW}\n'
-                        #
-                        self.text += f'set KTLz3 scan1:{self.VLQ.KappaZ}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KTRz3 scan1:{self.VLQ.KappaZ}\n'
-
-            elif self.VLQ.type == 'VLB':
-                if self.VLQ.Mass != None:
-                    self.text += f'set MBP scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaH != None and self.VLQ.KappaW != None and self.VLQ.KappaZ != None:
-                    if len(self.VLQ.KappaH)+len(self.VLQ.KappaW)+len(self.VLQ.KappaZ) != 3*len(self.VLQ.Mass):
-                        self.text += f'set KBLh3 {self.VLQ.KappaH[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KBRh3 {self.VLQ.KappaH[0]}\n'
-                        #
-                        self.text += f'set KBLw3 {self.VLQ.KappaW[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KBRw3 {self.VLQ.KappaW[0]}\n'
-                        #
-                        self.text += f'set KBLz3 {self.VLQ.KappaZ[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KBRz3 {self.VLQ.KappaZ[0]}\n'
-                    else:
-                        self.text += f'set KBLh3 scan1:{self.VLQ.KappaH}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KBRh3 scan1:{self.VLQ.KappaH}\n'
-                        #
-                        self.text += f'set KBLw3 scan1:{self.VLQ.KappaW}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KBRw3 scan1:{self.VLQ.KappaW}\n'
-                        #
-                        self.text += f'set KBLz3 scan1:{self.VLQ.KappaZ}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KBRz3 scan1:{self.VLQ.KappaZ}\n'
-
-            elif self.VLQ.type == 'VLX':
-                if self.VLQ.Mass != None:
-                    self.text += f'set MX scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaW != None:
-                    if len(self.VLQ.KappaW) != len(self.VLQ.Mass):
-                        self.text += f'set KXL3 {self.VLQ.KappaW[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KXR3 {self.VLQ.KappaW[0]}\n'
-                    else:
-                        self.text += f'set KXL3 scan1:{self.VLQ.KappaW}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KXR3 scan1:{self.VLQ.KappaW}\n'
-
-            elif self.VLQ.type == 'VLY':
-                if self.VLQ.Mass != None:
-                    self.text += f'set MY scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaW != None:
-                    if len(self.VLQ.KappaW) != len(self.VLQ.Mass):
-                        self.text += f'set KYL3 {self.VLQ.KappaW[0]}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KYR3 {self.VLQ.KappaW[0]}\n'
-                    else:
-                        self.text += f'set KYL3 scan1:{self.VLQ.KappaW}\n'
-                        if self.VLQ.LR == True:
-                            self.text += f'set KYR3 scan1:{self.VLQ.KappaW}\n'
+        names = OLD_MODEL[self.VLQ.type]
+        if self.model in ['VLQ_v4', 'VLQ_v5']:
+            if self.VLQ.Mass != None:
+                self.text += self.setLine(names['mass'], list(self.VLQ.Mass))
+            # Every coupling of the VLQ is written, since the defaults of the full model are not zero.
+            # The 3rd generation couplings are skipped only if they were never set (model defaults are kept).
+            third = {'h': self.VLQ.KappaH, 'w': self.VLQ.KappaW, 'z': self.VLQ.KappaZ}
+            if self.VLQ.Mass != None:
+                for parameter, values in self.VLQ.Kappas.items():
+                    boson = parameter[3] if self.VLQ.type in ['VLT','VLB'] else 'w'
+                    if parameter.endswith('3') and third[boson] == None:
+                        continue
+                    self.text += self.setLine(parameter, values)
+            else:
+                for parameter in [p for p in self.VLQ.Kappas if not p.endswith('3')]:
+                    self.text += f'set {parameter} 0\n'
         
         else:
-            if self.VLQ.type == 'VLT':
-                self.text += 'set zetaTuL 0.000000e-01\n'
-                self.text += 'set zetaTuR 0.000000e-01\n'
-                self.text += 'set zetaTcL 0.000000e-01\n'
-                self.text += 'set zetaTcR 0.000000e-01\n'
-                self.text += 'set zetaTtL 1.000000e+00\n'
-                if self.VLQ.LR:
-                    self.text += 'set zetaTtR 1.000000e-01\n'
-                else:
-                    self.text += 'set zetaTtR 0.000000e-01\n'
-                self.text += f'set xitph {self.VLQ.BRs[0]}\n'
-                self.text += f'set xitpw {self.VLQ.BRs[1]}\n'
-                self.text += f'set xitpz {self.VLQ.BRs[2]}\n'
-                if self.VLQ.Mass != None:
-                    self.text += f'set MTP scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaOld != None:
-                    if len(self.VLQ.KappaOld) != len(self.VLQ.Mass): 
-                        self.text += f'set KT {self.VLQ.KappaOld[0]}\n'
-                    else:
-                        self.text += f'set KT scan1:{self.VLQ.KappaOld}\n'
-
-            elif self.VLQ.type == 'VLB':
-                self.text += 'set zetaBdL 0.000000e-01\n'
-                self.text += 'set zetaBdR 0.000000e-01\n'
-                self.text += 'set zetaBsL 0.000000e-01\n'
-                self.text += 'set zetaBsR 0.000000e-01\n'
-                self.text += 'set zetaBbL 1.000000e+00\n'
-                if self.VLQ.LR:
-                    self.text += 'set zetaBbR 1.000000e-01\n'
-                else:
-                    self.text += 'set zetaBbR 0.000000e-01\n'
-                self.text += f'set xibph {self.VLQ.BRs[0]}\n'
-                self.text += f'set xibpw {self.VLQ.BRs[1]}\n'
-                self.text += f'set xibpz {self.VLQ.BRs[2]}\n'
-                if self.VLQ.Mass != None:
-                    self.text += f'set MBP scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaOld != None:
-                    if len(self.VLQ.KappaOld) != len(self.VLQ.Mass): 
-                        self.text += f'set KB {self.VLQ.KappaOld[0]}\n'
-                    else:
-                        self.text += f'set KB scan1:{self.VLQ.KappaOld}\n'
-                
-            elif self.VLQ.type == 'VLX':
-                self.text += 'set zetaXuL 0.000000e-01\n'
-                self.text += 'set zetaXuR 0.000000e-01\n'
-                self.text += 'set zetaXcL 0.000000e-01\n'
-                self.text += 'set zetaXcR 0.000000e-01\n'
-                self.text += 'set zetaXtL 1.000000e+00\n'
-                if self.VLQ.LR:
-                    self.text += 'set zetaXtR 1.000000e-01\n'
-                else:
-                    self.text += 'set zetaXtR 0.000000e-01\n'
-                if self.VLQ.Mass != None:
-                    self.text += f'set MX scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaOld != None:
-                    if len(self.VLQ.KappaOld) != len(self.VLQ.Mass): 
-                        self.text += f'set KX {self.VLQ.KappaOld[0]}\n'
-                    else:
-                        self.text += f'set KX scan1:{self.VLQ.KappaOld}\n'
-
-            elif self.VLQ.type == 'VLY':
-                self.text += 'set zetaYdL 0.000000e-01\n'
-                self.text += 'set zetaYdR 0.000000e-01\n'
-                self.text += 'set zetaYsL 0.000000e-01\n'
-                self.text += 'set zetaYsR 0.000000e-01\n'
-                self.text += 'set zetaYbL 1.000000e+00\n'
-                if self.VLQ.LR:
-                    self.text += 'set zetaYbR 1.000000e-01\n'
-                else:
-                    self.text += 'set zetaYbR 0.000000e-01\n'
-                if self.VLQ.Mass != None:
-                    self.text += f'set MY scan1:{list(self.VLQ.Mass)}\n'
-                if self.VLQ.KappaOld != None:
-                    if len(self.VLQ.KappaOld) != len(self.VLQ.Mass): 
-                        self.text += f'set KY {self.VLQ.KappaOld[0]}\n'
-                    else:
-                        self.text += f'set KY scan1:{self.VLQ.KappaOld}\n'
+            # zeta: generation fractions; with LR they are shared equally between both chiralities
+            share = 0.5 if self.VLQ.LR else 1.
+            for zetaName, zeta in zip(names['zeta'], self.VLQ.zeta):
+                self.text += f'set {zetaName}L {zeta*share:.6e}\n'
+                self.text += f'set {zetaName}R {zeta*share if self.VLQ.LR else 0:.6e}\n'
+            if names['xi']:
+                if self.VLQ.BRs == None:
+                    raise ValueError(f'MG5.createMG5Input: branchings (xi) of {self.VLQ.type} are not defined for VLQ_UFO')
+                for xi, BR in zip(names['xi'], self.VLQ.BRs):
+                    self.text += self.setLine(xi, BR)
+            if self.VLQ.Mass != None:
+                self.text += self.setLine(names['mass'], list(self.VLQ.Mass))
+            if self.VLQ.KappaOld != None:
+                self.text += self.setLine(names['kappa'], self.VLQ.KappaOld)
             
         self.text += 'done\n'
 
         with open(f'{name}.dat', 'w') as f:
             f.write(self.text)
+        self.text = header
         
         print(f'\n{name}.dat is created!\n')

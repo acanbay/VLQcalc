@@ -55,7 +55,7 @@ vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05, zeta=[0.1, 0.2, 0.7])
 vlq.Kappas['KTLw2']                             # coupling to the s quark
 ```
 
-The generation fractions ζ<sub>i</sub> give the share of the decays into each generation. Example: `15_generations.py`.
+The generation fractions ζ<sub>i</sub> give the share of the decays into each generation. `vlq.calcWidths(i)` gives the partial width of every channel for the i-th mass (`20_partial_widths.py`). Examples: `15_generations.py`, `18_generations_mg5.py`, `19_generations_convert.py`.
 
 ### SM inputs different from the defaults
 
@@ -66,4 +66,4 @@ import VLQcalc.constants as constants
 constants.setSM(Mt=173.0)
 ```
 
-See [SM inputs](physics.md#sm-inputs).
+See [SM inputs](physics.md#sm-inputs) and `21_sm_inputs.py`.

@@ -71,7 +71,7 @@ mg5.setProcess('p p > tp tp~, tp > w+ b')
 mg5.createMG5Input('tp_pair')                # writes tp_pair.dat
 ```
 
-Couplings to lighter quarks are set with the generation fractions ζ<sub>i</sub>, for example 20% of the decays into 2nd generation quarks:
+Without `zeta`, all decays go to 3rd generation quarks (`zeta=[0, 0, 1]`). Couplings to lighter quarks are set with the generation fractions ζ<sub>i</sub>, for example 20% of the decays into 2nd generation quarks:
 
 ```python
 vlq.setMass([1000, 1500, 2000])

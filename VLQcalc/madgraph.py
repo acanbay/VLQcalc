@@ -1,6 +1,7 @@
 '''
-Author: Ali Can Canbay - acanbay
-Date  : 21 May 2024
+Author : Ali Can Canbay - acanbay
+Created: 21 May 2024
+Updated: 25 October 2026
 
 This module is used to create MG5 object. MG5 object contains methods to create input file for 
 MadGraph5_aMC@NLO [1].
@@ -8,10 +9,10 @@ MadGraph5_aMC@NLO [1].
 ====REFERENCES====
 [1] Alwall, J., Herquet, M., Maltoni, F., Mattelaer, O., & Stelzer, T. (2011). 
     MadGraph 5: going beyond. 
-    Journal of High Energy Physics, 2011(6), 1-40.
+    Journal of High Energy Physics, 2011(6), 128.
     https://launchpad.net/mg5amcnlo
 '''
-import re
+import re, os, warnings
 
 # Multiparticle aliases written to the MG5 card
 ALIASES = {
@@ -41,6 +42,8 @@ class MG5:
     Run settings: shower, detector, analysis, madspin, reweight (default 'OFF')
     '''
     def __init__(self,VLQ,model='VLQ_v4_UFO'):
+        if getattr(VLQ, 'type', None) not in OLD_MODEL:
+            raise ValueError('MG5: the first argument must be a VLQ object (VLQcalc.model.VLQ)')
         self.VLQ = VLQ
 
         # Checking the model
@@ -84,7 +87,10 @@ class MG5:
 
     def setProcess(self,process):
         '''Defines the main process, e.g. 'p p > tp tp~' '''
-        if 'generate' not in process:
+        if type(process) != str:
+            raise ValueError(f'MG5.setProcess: process must be a string -> {process}')
+        process = process.strip()
+        if not process.startswith('generate '):
             process = 'generate '+process
         if '>' not in process:
             raise ValueError(f'MG5.setProcess: Wrong process -> {process}')
@@ -93,7 +99,10 @@ class MG5:
 
     def addProcess(self,process):
         '''Adds a process after the main one'''
-        if 'add process' not in process:
+        if type(process) != str:
+            raise ValueError(f'MG5.addProcess: process must be a string -> {process}')
+        process = process.strip()
+        if not process.startswith('add process '):
             process = 'add process '+process
         if '>' not in process:
             raise ValueError(f'MG5.addProcess: Wrong process -> {process}')
@@ -104,86 +113,106 @@ class MG5:
 
     def addInput(self, input):
         '''Adds a setting for the run cards, e.g. 'nevents 10000' '''
-        if 'set ' not in input:
+        if type(input) != str:
+            raise ValueError(f'MG5.addInput: input must be a string -> {input}')
+        input = input.strip()
+        if not input.startswith('set '):
             input = 'set '+input
         self.runInputs.append(input)
 
     def setLine(self, name, values):
-        # One value per mass is written as a scan, otherwise the first value is used
-        if type(values) != list:
-            return f'set {name} {values}\n'
+        # A single value, or one value per mass written as a scan; numbers with 6 significant digits
+        from VLQcalc.model import isNumber, toNumber
+        def number(value):
+            value = toNumber(value)
+            return str(value) if isinstance(value, int) else f'{value:.6g}'
+        values = [values] if isNumber(values) else list(values)
         if all(value == 0 for value in values):
             return f'set {name} 0\n'
-        if len(values) == len(self.VLQ.Mass):
-            return f'set {name} scan1:{values}\n'
-        return f'set {name} {values[0]}\n'
+        if len(values) == 1 or all(value == values[0] for value in values):
+            return f'set {name} {number(values[0])}\n'
+        if self.VLQ.Mass is None or len(values) != len(self.VLQ.Mass):
+            raise ValueError(f'MG5.createMG5Input: {name} has {len(values)} values; give one value per mass')
+        return f'set {name} scan1:[{", ".join(number(value) for value in values)}]\n'
+
+    def couplingNames(self):
+        # Names of all couplings of the VLQ to SM quarks in VLQ_v4/VLQ_v5, e.g. KTLh1, ..., KTRz3
+        letter = self.VLQ.type[-1]
+        names = []
+        for boson in self.VLQ.bosons:
+            for gen in [1,2,3]:
+                name = boson if self.VLQ.type in ['VLT','VLB'] else ''
+                names += [f'K{letter}L{name}{gen}', f'K{letter}R{name}{gen}']
+        return names
 
     def createMG5Input(self, name='mg5_input'):
         '''Writes the card to name.dat'''
         if self.Process == []:
             raise ValueError('MG5.createMG5Input: Process not defined')
-        # Header (model import and defines) is restored at the end, so repeated calls do not duplicate the card
-        header = self.text
-
+        name = os.fspath(name)
+        if name.endswith('.dat'):
+            name = name[:-4]
+        VLQ = self.VLQ
+        # The card is built in a local string and written only if it is complete
+        text = self.text
         for process in self.Process:
-            self.text += process+'\n'
+            text += process+'\n'
 
         if name!='mg5_input':
-            self.text += f'output {name}\n'
-            self.text += f'launch {name}\n'
+            text += f'output {name}\n'
+            text += f'launch {name}\n'
         else:
-            self.text += 'launch\n'
+            text += 'launch\n'
 
         ###
-        self.text += f'shower={self.shower}\n'
-        self.text += f'detector={self.detector}\n'
-        self.text += f'analysis={self.analysis}\n'
-        self.text += f'madspin={self.madspin}\n'
-        self.text += f'reweight={self.reweight}\n'
-        self.text += 'done\n'
+        text += f'shower={self.shower}\n'
+        text += f'detector={self.detector}\n'
+        text += f'analysis={self.analysis}\n'
+        text += f'madspin={self.madspin}\n'
+        text += f'reweight={self.reweight}\n'
+        text += 'done\n'
 
-        ###Cards
-        for input in self.runInputs:
-            self.text += input+'\n'
-        
         ###############################
-        names = OLD_MODEL[self.VLQ.type]
+        names = OLD_MODEL[VLQ.type]
         if self.model in ['VLQ_v4', 'VLQ_v5']:
-            if self.VLQ.Mass != None:
-                self.text += self.setLine(names['mass'], list(self.VLQ.Mass))
+            if VLQ.Mass is not None:
+                text += self.setLine(names['mass'], list(VLQ.Mass))
             # Every coupling of the VLQ is written, since the defaults of the full model are not zero.
             # The 3rd generation couplings are skipped only if they were never set (model defaults are kept).
-            third = {'h': self.VLQ.KappaH, 'w': self.VLQ.KappaW, 'z': self.VLQ.KappaZ}
-            if self.VLQ.Mass != None:
-                for parameter, values in self.VLQ.Kappas.items():
-                    boson = parameter[3] if self.VLQ.type in ['VLT','VLB'] else 'w'
-                    if parameter.endswith('3') and third[boson] == None:
-                        continue
-                    self.text += self.setLine(parameter, values)
-            else:
-                for parameter in [p for p in self.VLQ.Kappas if not p.endswith('3')]:
-                    self.text += f'set {parameter} 0\n'
-        
+            third = {'h': VLQ.KappaH, 'w': VLQ.KappaW, 'z': VLQ.KappaZ}
+            Kappas = VLQ.Kappas
+            for parameter in self.couplingNames():
+                boson = parameter[3] if VLQ.type in ['VLT','VLB'] else 'w'
+                if parameter.endswith('3') and third[boson] is None:
+                    continue
+                text += self.setLine(parameter, Kappas[parameter]) if parameter in Kappas else f'set {parameter} 0\n'
+
         else:
             # zeta: generation fractions; with LR they are shared equally between both chiralities
-            share = 0.5 if self.VLQ.LR else 1.
-            for zetaName, zeta in zip(names['zeta'], self.VLQ.zeta):
-                self.text += f'set {zetaName}L {zeta*share:.6e}\n'
-                self.text += f'set {zetaName}R {zeta*share if self.VLQ.LR else 0:.6e}\n'
+            share = 0.5 if VLQ.LR else 1.
+            for zetaName, zeta in zip(names['zeta'], VLQ.zeta):
+                text += self.setLine(f'{zetaName}L', zeta*share)
+                text += self.setLine(f'{zetaName}R', zeta*share if VLQ.LR else 0)
             if names['xi']:
-                if self.VLQ.BRs == None:
-                    raise ValueError(f'MG5.createMG5Input: branchings (xi) of {self.VLQ.type} are not defined for VLQ_UFO')
-                for xi, BR in zip(names['xi'], self.VLQ.BRs):
-                    self.text += self.setLine(xi, BR)
-            if self.VLQ.Mass != None:
-                self.text += self.setLine(names['mass'], list(self.VLQ.Mass))
-            if self.VLQ.KappaOld != None:
-                self.text += self.setLine(names['kappa'], self.VLQ.KappaOld)
-            
-        self.text += 'done\n'
+                if VLQ.BRs is None:
+                    raise ValueError(f'MG5.createMG5Input: branchings (xi) of {VLQ.type} are not defined for VLQ_UFO')
+                for xi, BR in zip(names['xi'], VLQ.BRs):
+                    text += self.setLine(xi, BR)
+            if VLQ.Mass is not None:
+                text += self.setLine(names['mass'], list(VLQ.Mass))
+            if VLQ.KappaOld is not None:
+                text += self.setLine(names['kappa'], VLQ.KappaOld)
+            else:
+                warnings.warn(f'MG5.createMG5Input: no VLQ_UFO coupling ({names["kappa"]}) is set, so the default of the '
+                              'model is used; set VLQ.KappaOld or use convertModel(..., reverse=True)', stacklevel=2)
+
+        # Settings given with addInput come last, so that they can also change a mass or a coupling
+        for input in self.runInputs:
+            text += input+'\n'
+
+        text += 'done\n'
 
         with open(f'{name}.dat', 'w') as f:
-            f.write(self.text)
-        self.text = header
-        
+            f.write(text)
+
         print(f'\n{name}.dat is created!\n')

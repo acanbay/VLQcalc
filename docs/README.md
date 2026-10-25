@@ -29,7 +29,7 @@ mg5.addInput('WTP auto')                        # MadGraph5 computes the width f
 mg5.createMG5Input('tp_pair')
 ```
 
-The card `tp_pair.dat` runs one point per mass. Examples: `06_calculate_ratio_kappas.py`, `11_mg5_input_v4_4FNS.py`.
+The card `tp_pair.dat` runs one point per mass. See examples 01–03 and 08–10.
 
 ### Converting a coupling of VLQ_UFO
 
@@ -42,7 +42,7 @@ vlq.convertModel(0.5, [0.25, 0.5, 0.25])        # kappa_B and the branching rati
 print(vlq.KappaH, vlq.KappaW, vlq.KappaZ)      # couplings of VLQ_v4/VLQ_v5
 ```
 
-`convertModel(..., reverse=True)` converts in the other direction. Examples: `01_converting_models_1.py`, `02_converting_models_2.py`, `08_convert_ratio_kappas.py`.
+`convertModel(..., reverse=True)` converts in the other direction. See examples 14–18.
 
 ### Couplings to 1st and 2nd generation quarks
 
@@ -55,7 +55,7 @@ vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05, zeta=[0.1, 0.2, 0.7])
 vlq.Kappas['KTLw2']                             # coupling to the s quark
 ```
 
-The generation fractions ζ<sub>i</sub> give the share of the decays into each generation. `vlq.calcWidths(i)` gives the partial width of every channel for the i-th mass (`20_partial_widths.py`). Examples: `15_generations.py`, `18_generations_mg5.py`, `19_generations_convert.py`.
+The generation fractions ζ<sub>i</sub> give the share of the decays into each generation. `vlq.calcWidths(i)` gives the partial width of every channel for the i-th mass (example 05). See examples 11–13 and 18.
 
 ### SM inputs different from the defaults
 
@@ -66,4 +66,32 @@ import VLQcalc.constants as constants
 constants.setSM(Mt=173.0)
 ```
 
-See [SM inputs](physics.md#sm-inputs) and `21_sm_inputs.py`.
+See [SM inputs](physics.md#sm-inputs) and example 21.
+
+## Examples
+
+The [examples](../examples) folder has one script per task, ordered from the basic calculation to the conversion between models:
+
+| Script | Content |
+|-|-|
+| `01_couplings_from_width.py` | Couplings of T for a chosen Γ/M and branching ratios |
+| `02_couplings_from_width_LR.py` | The same with left- and right-handed couplings |
+| `03_couplings_X_Y.py` | Couplings of X and Y, which decay only through W |
+| `04_decay_widths.py` | Width and branching ratios for given couplings |
+| `05_partial_widths.py` | Partial width of every channel |
+| `06_tables_and_files.py` | Tables and files (Markdown, text, CSV, JSON) |
+| `07_plots.py` | Plots of couplings, branching ratios and widths |
+| `08_mg5_card_v4_4FNS.py` | MadGraph5 card, VLQ_v4_UFO, 4-flavour scheme |
+| `09_mg5_card_v4_5FNS.py` | MadGraph5 card, VLQ_v4_UFO, 5-flavour scheme |
+| `10_mg5_card_v5.py` | MadGraph5 card, VLQ_v5_UFO |
+| `11_generations.py` | Couplings to 1st and 2nd generation quarks |
+| `12_generations_mg5_card.py` | MadGraph5 card with couplings to lighter quarks |
+| `13_generations_plots.py` | Plots with couplings to lighter quarks, one panel per boson or combined |
+| `14_convert_from_VLQ_UFO.py` | Conversion of a VLQ_UFO coupling (T, B) |
+| `15_convert_from_VLQ_UFO_X_Y.py` | Conversion of a VLQ_UFO coupling (X, Y) |
+| `16_convert_to_VLQ_UFO.py` | Conversion to VLQ_UFO |
+| `17_converted_decay_widths.py` | Γ/M and branching ratios of a VLQ_UFO coupling |
+| `18_convert_generations.py` | Conversion with generation fractions |
+| `19_mg5_card_VLQ_UFO.py` | MadGraph5 card, VLQ_UFO, coupling set by hand |
+| `20_mg5_card_VLQ_UFO_converted.py` | MadGraph5 card, VLQ_UFO, coupling for a chosen Γ/M |
+| `21_sm_inputs.py` | SM inputs different from the defaults |

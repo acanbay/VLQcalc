@@ -66,3 +66,37 @@ def test_single_panel_plot(tmp_path):
     vlq.calcRatioKappas(Ratio=0.1)
     ax = vlq.plot()
     assert len(ax.get_lines()) == 1 and ax.get_lines()[0].get_linestyle() == '-'
+
+@pytest.mark.parametrize('quantity', ['kappa', 'BR', 'width'])
+def test_combined_plot(tmp_path, vlq, quantity):
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    ax = vlq.plot(quantity, combined=True, save=str(tmp_path / f'{quantity}.png'))
+    channels = len([line for line in ax.get_lines() if line.get_label() != 'total'])
+    assert channels == 6 and (tmp_path / f'{quantity}.png').exists()
+    colors = {line.get_color() for line in ax.get_lines() if line.get_label() != 'total'}
+    assert len(colors) == 3
+
+def test_combined_plot_into_given_axes(vlq):
+    plt = pytest.importorskip('matplotlib.pyplot')
+    fig, ax = plt.subplots()
+    assert vlq.plot(combined=True, ax=ax) is ax
+    with pytest.raises(ValueError):
+        vlq.plot(ax=ax)
+    with pytest.raises(ValueError):
+        vlq.plot(combined='yes')
+
+def test_monochrome_plot_draws_solid_line_widest():
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    vlq = model.VLQ('B')
+    vlq.setMass(range(1000, 2001, 100))
+    vlq.calcRatioKappas([0.25, 0.5, 0.25], 0.1)
+    lines = vlq.plot('BR').get_lines()
+    assert {line.get_color() for line in lines} == {'black'}
+    solid = [line for line in lines if line.get_linestyle() == '-']
+    others = [line for line in lines if line.get_linestyle() != '-']
+    assert all(s.get_linewidth() > o.get_linewidth() and s.get_zorder() < o.get_zorder()
+               for s in solid for o in others)

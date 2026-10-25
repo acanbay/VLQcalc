@@ -71,7 +71,7 @@ The couplings are rounded to 6 significant digits. A channel with a non-zero bra
 
 ## SM inputs
 
-The default inputs are those of the restriction cards of VLQ_v4 and VLQ_v5:
+The default inputs are the default parameters of VLQ_v4 and VLQ_v5 (the same in all their restriction cards):
 
 | Input | Value | Name in `setSM` |
 |-|-|-|
@@ -100,11 +100,11 @@ $m_W$ cannot be set directly, because it is not an independent parameter of the 
 
 ## Choosing the settings
 
-**Flavour scheme (`FNS`).** In the 4-flavour scheme the b quark is massive and is not a parton of the proton; in the 5-flavour scheme it is massless and has a parton density. The scheme should be the same as the one of the model folder and the PDF set used for the event generation. In VLQcalc it changes only $m_b$ in the widths: for $\Gamma/M = 0.05$ the couplings of the two schemes differ by less than 0.04% at $M = 300$ GeV and less than 0.004% at $M = 1$ TeV.
+**Flavour scheme (`FNS`).** In the 4-flavour scheme the b quark is massive and is not a parton of the proton; in the 5-flavour scheme it is massless and has a parton density. The scheme should be the same as the one of the model folder and the PDF set used for the event generation. In VLQcalc it changes only $m_b$ in the widths: for $\Gamma/M = 0.05$ with `LR=False` the couplings of the two schemes differ by less than 0.04% at $M = 300$ GeV and less than 0.004% at $M = 1$ TeV. With `LR=True` the interference term is linear in $m_b$, and the couplings of B differ by up to 1.8% at 300 GeV and 0.5% at 1 TeV (T and Y: 0.4% and 0.01%).
 
-**Chirality (`LR`).** In the minimal models with one VLQ multiplet, the mixing with the SM quarks is mainly left-handed for the singlets (T, B) and mainly right-handed for the doublets ((X T), (T B), (B Y)); the other chirality is suppressed by $m_q/M$ [7]. With `LR=False` VLQcalc computes one coupling per channel and writes it to the left-handed parameters (`KTLw3`, ...). Because the widths depend on $\kappa_L^2 + \kappa_R^2$ and on the product $\kappa_L \kappa_R$, a purely right-handed coupling gives the same widths as a purely left-handed coupling of the same value; the angular distributions of the decay products differ. For a right-handed scenario, the computed couplings can therefore be used for the right-handed parameters (`KTRw3`, ...), which have to be set in the card by hand. `LR=True` sets $\kappa_R = \kappa_L$.
+**Chirality (`LR`).** In the minimal models with one VLQ multiplet, the mixing with the SM quarks is mainly left-handed for the singlets (T, B) and mainly right-handed for the doublets ((X T), (T B), (B Y)); the other chirality is suppressed by $m_q/M$ [6]. With `LR=False` VLQcalc computes one coupling per channel and writes it to the left-handed parameters (`KTLw3`, ...). Because the widths depend on $\kappa_L^2 + \kappa_R^2$ and on the product $\kappa_L \kappa_R$, a purely right-handed coupling gives the same widths as a purely left-handed coupling of the same value; the angular distributions of the decay products differ. For a right-handed scenario, the computed couplings can therefore be used for the right-handed parameters: settings given with `mg5.addInput` are written after the couplings, so `mg5.addInput('KTLw3 0')` and `mg5.addInput('KTRw3 0.195')` (or a `scan1:[...]` list, one value per mass) replace the written values. `LR=True` sets $\kappa_R = \kappa_L$.
 
-**Width (`Ratio`).** The couplings are computed from the total width at the given mass. For small $\Gamma/M$ the production and the decay of the VLQ factorise (narrow width approximation). For larger widths the off-shell contributions and the interference with SM processes change the cross sections and the distributions, and the full process should be simulated [8].
+**Width (`Ratio`).** The couplings are computed from the total width at the given mass. For small $\Gamma/M$ the production and the decay of the VLQ factorise (narrow width approximation). For larger widths the off-shell contributions and the interference with SM processes change the cross sections and the distributions, and the full process should be simulated [7].
 
 ## Validation
 

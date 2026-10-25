@@ -1,0 +1,26 @@
+import model VLQ_UFO
+define VLB = bp bp~
+define WW = w+ w-
+define tt = t t~
+define bb = b b~
+generate p p > VLB j, (VLB > WW tt, tt > WW bb)
+output mg5_input_card_VLQ_UFO
+launch mg5_input_card_VLQ_UFO
+shower=OFF
+detector=OFF
+analysis=OFF
+madspin=OFF
+reweight=OFF
+done
+set zetaBdL 0
+set zetaBdR 0
+set zetaBsL 0
+set zetaBsR 0
+set zetaBbL 1
+set zetaBbR 0
+set xibph scan1:[0.238724, 0.245018, 0.247198]
+set xibpw scan1:[0.522537, 0.509956, 0.505601]
+set xibpz scan1:[0.238738, 0.245025, 0.247201]
+set MBP scan1:[1000, 1500, 2000]
+set KB scan1:[0.565003, 0.371799, 0.277617]
+done

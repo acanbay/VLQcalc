@@ -120,8 +120,35 @@ def test_conversion_round_trip(VLQtype, BRs):
     vlq.convertModel(0.2, BRs) if BRs else vlq.convertModel(0.2)
     kappas = [vlq.KappaH, vlq.KappaW, vlq.KappaZ] if BRs else vlq.KappaW
     vlq.convertModel(kappas, reverse=True)
-    # exact for X and Y; for T and B the branchings of VLQ_v4 include the quark masses
-    assert vlq.KappaOld == pytest.approx([0.2]*3, rel=5e-3 if BRs else 1e-12)
+    # the reverse conversion is the exact inverse of the vertex matching
+    assert vlq.KappaOld == pytest.approx([0.2]*3, rel=1e-6)
+
+@pytest.mark.parametrize('VLQtype', ['T', 'B', 'X', 'Y'])
+@pytest.mark.parametrize('LR', [False, True])
+@pytest.mark.parametrize('zeta', [[0, 0, 1], [0, 0.5, 0.5], [0.2, 0.3, 0.5]])
+def test_round_trip_is_exact(VLQtype, LR, zeta):
+    xi = {'T': [0.5, 0.25, 0.25], 'B': [0.25, 0.5, 0.25]}.get(VLQtype)
+    vlq = model.VLQ(VLQtype, LR=LR)
+    vlq.setMass([500, 1000, 2000])
+    vlq.convertModel(0.3, xi, zeta=zeta) if xi else vlq.convertModel(0.3, zeta=zeta)
+    kappas = [vlq.KappaH, vlq.KappaW, vlq.KappaZ] if xi else vlq.KappaW
+    vlq.zeta = [0, 0, 1]
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        vlq.convertModel(kappas, reverse=True)
+    assert not any('cannot reproduce' in str(w.message) for w in caught)
+    assert vlq.KappaOld == pytest.approx([0.3]*3, rel=1e-6)
+    assert vlq.zeta == pytest.approx(zeta, abs=1e-6)
+    if xi:
+        assert [list(row) for row in zip(*vlq.BRs)] == [pytest.approx(xi, abs=1e-6)]*3
+
+def test_round_trip_warns_if_VLQ_UFO_cannot_reproduce_the_couplings():
+    vlq = model.VLQ('T')
+    vlq.setMass(1000)
+    vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.1, zeta=[0, 0.2, 0.8])
+    with pytest.warns(UserWarning, match='cannot reproduce'):
+        vlq.convertModel([vlq.KappaH, vlq.KappaW, vlq.KappaZ], reverse=True)
+    assert vlq.zeta == [0, 0.2, 0.8]
 
 def test_reverse_conversion_sets_branchings():
     vlq = model.VLQ('B')

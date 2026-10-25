@@ -5,7 +5,7 @@
 - **Decays.** Only the decays into a SM boson ($H$, $W$, $Z$) and a SM quark are included. Decays into another VLQ (for example $T \to W B$ in VLQ_v5) and couplings between two VLQs are not computed; VLQcalc leaves these parameters at their default values (zero in VLQ_v5).
 - **Chirality.** A coupling is either left-handed only (`LR=False`) or has $\kappa_R = \kappa_L$ (`LR=True`). Purely right-handed couplings are not written to the card automatically; see [Choosing the settings](physics.md#choosing-the-settings).
 - **Models.** VLQ_UFO, VLQ_v4_UFO and VLQ_v5_UFO are supported. Other models, such as models with additional scalars, are not.
-- **Width.** The couplings are computed at a fixed mass from $\Gamma/M$. Whether the narrow width approximation holds for the chosen width has to be checked separately [8].
+- **Width.** The couplings are computed at a fixed mass from $\Gamma/M$. Whether the narrow width approximation holds for the chosen width has to be checked separately [7].
 - **Mixing.** The couplings of the different channels are independent inputs. VLQcalc does not relate them to the mixing angles of a specific multiplet.
 
 ## Common questions

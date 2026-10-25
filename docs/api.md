@@ -17,7 +17,7 @@ vlq = model.VLQ(VLQ_type, FNS=4, LR=False)
 
 ### `setMass(Masses)`
 
-Sets the mass in GeV: a number, or a list, tuple, range or numpy array of numbers. All results are given for each mass.
+Sets the mass in GeV: a number, or a list, tuple, range or numpy array of numbers. All results are given for each mass. If the masses change, the couplings computed for the previous masses are deleted (with a warning); a single `KappaOld` and a single set of branching ratios set by hand are kept.
 
 ```python
 vlq.setMass(1000)
@@ -45,7 +45,7 @@ vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05, zeta=[0.1, 0.2, 0.7])  # with light
 Converts couplings between VLQ_UFO and VLQ_v4/VLQ_v5; see [Models](models.md#conversion-between-vlq_ufo-and-vlq_v4vlq_v5).
 
 - `reverse=False` (VLQ_UFO → VLQ_v4/VLQ_v5): `Kappas` is $\kappa_Q$ (a number), `BRs` is `[ξH, ξW, ξZ]` for T and B, and `zeta` gives the generation fractions. The results are stored in `KappaH`, `KappaW`, `KappaZ` and `KappaLight`; `KappaOld` is set to `[Kappas]`.
-- `reverse=True` (VLQ_v4/VLQ_v5 → VLQ_UFO): `Kappas` is `[kH, kW, kZ]` for T and B, or `kW` for X and Y, with one value per mass (a number is accepted for a single mass). Couplings to lighter quarks stored in the object are included. The result is stored in `KappaOld`.
+- `reverse=True` (VLQ_v4/VLQ_v5 → VLQ_UFO): `Kappas` is `[kH, kW, kZ]` for T and B, or `kW` for X and Y, with one value per mass (a number is accepted for a single mass). Couplings to lighter quarks stored in the object are included. The conversion is the exact inverse of the forward conversion: $\kappa_Q$ is stored in `KappaOld`, the parameters $\xi_V$ in `BRs` (T and B) and $\zeta_i$ in `zeta`.
 
 ### `calcDecay(Mass, Kappas, LR)`
 
@@ -100,9 +100,25 @@ A JSON file for a T quark with two masses (the widths are rounded here; the file
 
 `kappa VLQ_UFO` is added after a conversion. The widths are total widths in GeV, computed from the rounded couplings, so they agree with Γ/M × M to about 6 digits.
 
-### `plot(quantity='kappa', save=None, ax=None, logy=None)`
+### `plot(quantity='kappa', save=None, ax=None, logy=None, combined=False)`
 
-Plots the couplings (`'kappa'`), branching ratios (`'BR'`) or partial widths (`'width'`) against the mass and returns the matplotlib axes. With couplings to lighter quarks there is one panel per boson, and the generations are told apart by the line style. `save` writes the figure (for example `'kappas.pdf'`); `ax` draws into existing axes (single panel only); `logy` forces a logarithmic (`True`) or linear (`False`) axis, otherwise the scale is chosen from the range of the values. Needs matplotlib (`pip install "VLQcalc[plot]"`).
+Plots the couplings (`'kappa'`), branching ratios (`'BR'`) or partial widths (`'width'`) against the mass and returns the matplotlib axes (an array of axes for several panels). Needs matplotlib (`pip install "VLQcalc[plot]"`).
+
+| Argument | Content |
+|-|-|
+| `quantity` | `'kappa'`, `'BR'` or `'width'` |
+| `save` | file name of the figure, for example `'kappas.pdf'` |
+| `ax` | existing matplotlib axes to draw into (single panel only) |
+| `logy` | `True` or `False` for a logarithmic or linear y axis; by default the scale is chosen from the range of the values |
+| `combined` | with couplings to lighter quarks: `False` draws one panel per boson, `True` draws all channels in one panel |
+
+The plots are black and white. The channels are told apart by the line style: for 3rd generation couplings only, $H$ is solid, $W$ dashed and $Z$ dash-dotted; with couplings to lighter quarks, the 3rd generation is solid, the 2nd dashed and the 1st dotted. The solid line is drawn widest and below the others, so curves with equal values remain visible. With `combined=True` the boson is given by the colour and the generation by the line style. The width plot also shows the total width as a wide grey line.
+
+```python
+vlq.plot(save='kappas.pdf')                         # couplings
+vlq.plot('BR', save='branchings.pdf')               # branching ratios
+vlq.plot('width', combined=True, save='widths.pdf') # all channels in one panel
+```
 
 ### Attributes
 
@@ -115,7 +131,7 @@ Plots the couplings (`'kappa'`), branching ratios (`'BR'`) or partial widths (`'
 | `KappaH`, `KappaW`, `KappaZ` | couplings to 3rd generation quarks, one value per mass (`KappaH`, `KappaZ` only for T and B) |
 | `KappaLight` | couplings to 1st and 2nd generation quarks, `{(boson, generation): [values]}` |
 | `Kappas` | all couplings with the names of VLQ_v4/VLQ_v5 (read only), for example `vlq.Kappas['KTLw2']` |
-| `KappaOld` | $\kappa_Q$ of VLQ_UFO |
+| `KappaOld` | $\kappa_Q$ of VLQ_UFO, a list with one value per mass (or one value for all masses); set by `convertModel` or by hand, deleted by `calcRatioKappas` |
 | `bosons` | bosons of the decay channels, `['h', 'w', 'z']` or `['w']` |
 
 The couplings can also be set by hand, for example `vlq.KappaOld = [0.5]` before writing a VLQ_UFO card.

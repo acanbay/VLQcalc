@@ -1,31 +1,28 @@
 '''
-Author: Ali Can Canbay - acanbay
-Date  : 21 May 2024
+Author : Ali Can Canbay - acanbay
+Created: 21 May 2024
+Updated: 25 October 2026
 
 This module contains the kappa calculation methods.
 calcRatioKappas calculates kappas based on Gamma/Mass ratios.
 Every partial width is proportional to kappa^2 (also with LR, where kappa_L = kappa_R), so for a target
 branching ratio BR_c of channel c and a ratio Gamma/M the coupling is obtained directly:
     kappa_c = sqrt( BR_c * (Gamma/M) * M / Gamma_c(kappa=1) )
-Versions up to 0.1.2 used a modified genetic algorithm [1] for the same task.
-
-====REFERENCES====
-[1] Canbay, A. C. modifiedGA (Version 0.1.0) [Computer software].
-    https://doi.org/10.5281/zenodo.12569505
-    https://github.com/acanbay/modifiedGA
-
 '''
 import math
 from VLQcalc import decays
 ###########################
-def channelBRs(VLQ):
+def channelBRs(VLQ, BRs=None, zeta=None):
     # Target branching ratio of every channel: BR(V q_i) = zeta_i * BR(V)
     bosons = list(decays.CHANNELS[VLQ.type])
-    BRs = VLQ.BRs if type(VLQ.BRs) == list else [VLQ.BRs]
-    return {(boson,gen): BR*zeta for boson, BR in zip(bosons,BRs) for gen, zeta in enumerate(VLQ.zeta, start=1)}
+    BRs = VLQ.BRs if BRs is None else BRs
+    zeta = VLQ.zeta if zeta is None else zeta
+    BRs = BRs if type(BRs) == list else [BRs]
+    return {(boson,gen): BR*z for boson, BR in zip(bosons,BRs) for gen, z in enumerate(zeta, start=1)}
 
-def calcRatioKappas(VLQ):
-    targets = channelBRs(VLQ)
+def calcRatioKappas(VLQ, BRs, Ratio, zeta):
+    # Returns {(boson, generation): [kappa per mass]}; the VLQ object is not changed
+    targets = channelBRs(VLQ, BRs, zeta)
     Kappas = {channel: [] for channel in targets}
     for Mass in VLQ.Mass:
         unit = decays.partialWidths(VLQ.type, VLQ.FNS, Mass, {channel: 1 for channel in targets}, VLQ.LR)
@@ -34,10 +31,10 @@ def calcRatioKappas(VLQ):
                 kappa = 0
             elif unit[channel] <= 0:
                 boson, gen = channel
-                raise ValueError(f'{VLQ.type} -> {boson.upper()} + generation {gen} quark is kinematically closed for M = {Mass} GeV, '
-                                 f'but its branching ratio is {BR}')
+                raise ValueError(f'VLQ.calcRatioKappas: {VLQ.type} -> {boson.upper()} + generation {gen} quark is kinematically '
+                                 f'closed for M = {Mass} GeV, but its branching ratio is {BR}')
             else:
                 # 6 significant digits, so that small couplings to light quarks keep their precision
-                kappa = float(f'{math.sqrt(BR*VLQ.Ratio*Mass/unit[channel]):.6g}')
+                kappa = float(f'{math.sqrt(BR*Ratio*Mass/unit[channel]):.6g}')
             Kappas[channel].append(kappa)
-    VLQ.setKappas(Kappas)
+    return Kappas

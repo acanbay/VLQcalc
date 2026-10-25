@@ -1,6 +1,7 @@
 '''
-Author: Ali Can Canbay - acanbay
-Date  : 21 May 2024
+Author : Ali Can Canbay - acanbay
+Created: 21 May 2024
+Updated: 25 October 2026
 
 This module contains the VLQ object. It debugs commands and communicates with other modules.
 '''
@@ -16,11 +17,28 @@ def toNumber(value):
     # numpy scalars are converted to plain int/float so that cards and files look the same
     return value.item() if hasattr(value, 'item') else value
 
+def isFinite(value):
+    return isNumber(value) and math.isfinite(value)
+
+def perMass(values, n, where):
+    # A list with one value per mass; a single value is used for every mass
+    if isNumber(values):
+        values = [values]
+    values = list(values)
+    if len(values) == 1:
+        return values*n
+    if len(values) != n:
+        raise ValueError(f'{where}: {len(values)} values for {n} masses; give one value per mass')
+    return values
+
 def checkBRs(BRs, where, text, name='branchings'):
     # Three non-negative fractions whose sum is 1 (within rounding)
-    if type(BRs) not in [list,tuple] or len(BRs) != 3 or not all(isNumber(BR) for BR in BRs):
+    try:
+        BRs = [toNumber(BR) for BR in BRs] if not isinstance(BRs, (str, dict, set)) else None
+    except TypeError:
+        BRs = None
+    if BRs is None or len(BRs) != 3 or not all(isFinite(BR) for BR in BRs):
         raise ValueError(f'{where}: {text}')
-    BRs = [toNumber(BR) for BR in BRs]
     if any(BR < 0 for BR in BRs) or not math.isclose(sum(BRs), 1, abs_tol=1e-9):
         raise ValueError(f'{where}: the sum of all {name} must be 1 and each of them must be non-negative')
     return BRs
@@ -68,8 +86,9 @@ class VLQ:
             self.OldKappatext = 'kY'
 
         # Checking the FNS value
-        if FNS not in [4,5] or isinstance(FNS, bool):
+        if not isNumber(FNS) or FNS not in [4,5]:
             raise ValueError('VLQ: Flavor value must be 4 or 5')
+        FNS = int(FNS)
 
         if FNS == 4:
             if self.type == 'VLT':
@@ -115,7 +134,7 @@ class VLQ:
     @property
     def Kappas(self):
         '''All couplings named as in the VLQ_v4/VLQ_v5 models, e.g. {'KTLh1': [...], ..., 'KTRz3': [...]}'''
-        if self.Mass == None:
+        if self.Mass is None:
             return {}
         zeros = [0]*len(self.Mass)
         third = {'h': self.KappaH, 'w': self.KappaW, 'z': self.KappaZ}
@@ -124,9 +143,9 @@ class VLQ:
         for boson in self.bosons:
             for gen in [1,2,3]:
                 if gen == 3:
-                    values = third[boson] if third[boson] != None else zeros
+                    values = perMass(third[boson], len(self.Mass), 'VLQ.Kappas') if third[boson] is not None else zeros
                 else:
-                    values = self.KappaLight.get((boson,gen), zeros)
+                    values = perMass(self.KappaLight.get((boson,gen), zeros), len(self.Mass), 'VLQ.Kappas')
                 name = boson if self.type in ['VLT','VLB'] else ''
                 Kappas[f'K{letter}L{name}{gen}'] = list(values)
                 Kappas[f'K{letter}R{name}{gen}'] = list(values) if self.LR else list(zeros)
@@ -147,21 +166,44 @@ class VLQ:
         for boson in self.bosons:
             for gen in [1,2,3]:
                 values = third[boson] if gen == 3 else self.KappaLight.get((boson,gen))
-                if values != None:
-                    Kappas[(boson,gen)] = values[index] if len(values) > index else values[0]
+                if values is not None:
+                    Kappas[(boson,gen)] = perMass(values, len(self.Mass), 'VLQ.calcWidths')[index]
         return decays.partialWidths(self.type, self.FNS, self.Mass[index], Kappas, self.LR)
 
     def setMass(self, Masses):
-        '''Sets the mass in GeV: a number, or a list, tuple, range or numpy array of numbers'''
+        '''
+        Sets the mass in GeV: a number, or a list, tuple, range or numpy array of numbers.
+        Results computed for other masses are deleted.
+        '''
+        if getattr(Masses, 'ndim', None) == 0:
+            Masses = Masses.item()
         if isNumber(Masses):
             Masses = [Masses]
+        if isinstance(Masses, (str, dict, set, frozenset)):
+            raise ValueError('VLQ.setMass: Mass must be number or number list')
         try:
             Masses = [toNumber(Mass) for Mass in Masses]
-        except TypeError:
+        except (TypeError, ValueError):
             raise ValueError('VLQ.setMass: Mass must be number or number list') from None
-        if len(Masses) == 0 or not all(isNumber(Mass) and Mass > 0 for Mass in Masses):
+        if len(Masses) == 0 or not all(isFinite(Mass) and Mass > 0 for Mass in Masses):
             raise ValueError('VLQ.setMass: Mass must be a positive number or a list of positive numbers')
+        if self.Mass is not None and Masses != self.Mass:
+            self.clearResults('VLQ.setMass')
         self.Mass = Masses
+
+    def clearResults(self, where):
+        # Couplings and branchings computed for the previous masses do not belong to the new ones.
+        # A single VLQ_UFO coupling and a single set of branchings (e.g. set by hand) apply to every mass.
+        perMassResults = [self.KappaH, self.KappaW, self.KappaZ] + list(self.KappaLight.values())
+        if any(values is not None for values in perMassResults):
+            warnings.warn(f'{where}: the mass changed; deleting the couplings computed for the previous masses', stacklevel=3)
+        self.KappaH = self.KappaW = self.KappaZ = None
+        self.KappaLight = {}
+        self.Ratio = None
+        if self.KappaOld is not None and (isNumber(self.KappaOld) or len(self.KappaOld) != 1):
+            self.KappaOld = None
+        if type(self.BRs) == list and any(type(BR) == list for BR in self.BRs):
+            self.BRs = None
 
     def convertModel(self,Kappas,BRs=1,reverse=False,zeta=None):
         '''
@@ -170,9 +212,9 @@ class VLQ:
         reverse=False: Kappas is kappa_Q of VLQ_UFO, BRs = [xiH, xiW, xiZ] (T, B), zeta = [zeta1, zeta2, zeta3];
                        the results are stored in KappaH, KappaW, KappaZ and KappaLight.
         reverse=True : Kappas = [kH, kW, kZ] (T, B) or kW (X, Y), one value per mass;
-                       the result is stored in KappaOld.
+                       kappa_Q is stored in KappaOld, the xi of VLQ_UFO in BRs (T, B) and its zeta in zeta.
         '''
-        if self.Mass == None:
+        if self.Mass is None:
             raise ValueError('VLQ.convertModel: It was not specified for which mass the new kappas would be calculated. '
                              'Please define mass to VLQ object with setMass method')
         if type(reverse)!=bool:
@@ -184,16 +226,20 @@ class VLQ:
             else:
                 BRs = checkBRs(BRs, 'VLQ.convertModel',
                                f'{self.type} must have 3 float branching values (xi) in old model -> [xiH, xiW, xiZ]')
-            self.zeta = checkZeta(zeta, 'VLQ.convertModel')
+            zeta = checkZeta(zeta, 'VLQ.convertModel')
             if type(Kappas) in [list,tuple] and len(Kappas)==1:
                 Kappas = Kappas[0]
-            if not isNumber(Kappas):
+            if not isFinite(Kappas):
                 raise ValueError(f'VLQ.convertModel: kappa value to be converted must be a number -> {self.OldKappatext}')
-            if self.KappaH!=None or self.KappaW!=None or self.KappaZ!=None:
+            Kappas = toNumber(Kappas)
+            converted = modelConverter.convert(self,Kappas,BRs,reverse,zeta)
+            if self.KappaH is not None or self.KappaW is not None or self.KappaZ is not None:
                 warnings.warn(f'VLQ.convertModel: deleting old kappa values for {self.NewKappatext}', stacklevel=2)
-            self.KappaOld = [toNumber(Kappas)]
+            self.zeta = zeta
+            self.KappaOld = [Kappas]
             self.BRs = BRs
-            self.setKappas(modelConverter.convert(self,toNumber(Kappas),BRs,reverse))
+            self.Ratio = None
+            self.setKappas(converted)
         else:
             if zeta is not None:
                 raise ValueError('VLQ.convertModel: zeta is only used for VLQ_UFO -> VLQ_v4; '
@@ -202,19 +248,18 @@ class VLQ:
             def asList(values):
                 # one value per mass
                 values = [values] if isNumber(values) else values
-                if type(values) not in [list,tuple] or len(values) != n or not all(isNumber(k) for k in values):
+                values = list(values) if hasattr(values, '__len__') and not isinstance(values, (str, dict)) else values
+                if type(values) != list or len(values) != n or not all(isFinite(k) for k in values):
                     raise ValueError(f'VLQ.convertModel: kappa values to be converted must be numbers for {self.type} -> '
                                      f'{self.NewKappatext}, one value per mass ({n})')
                 return [toNumber(k) for k in values]
             if self.type in ['VLX','VLY']:
-                if type(Kappas) in [list,tuple] and len(Kappas) == 1 and n != 1:
-                    Kappas = Kappas[0]
                 self.KappaW = asList(Kappas)
             else:
                 if type(Kappas) not in [list,tuple] or len(Kappas) != 3:
                     raise ValueError(f'VLQ.convertModel: {self.type} needs 3 kappa values (or lists) -> [{self.NewKappatext}]')
                 self.KappaH, self.KappaW, self.KappaZ = [asList(ks) for ks in Kappas]
-            if self.KappaOld!=None:
+            if self.KappaOld is not None:
                 warnings.warn(f'VLQ.convertModel: deleting old kappa values for {self.OldKappatext}', stacklevel=2)
             self.KappaOld = modelConverter.convert(self,None,reverse=reverse)
 
@@ -226,19 +271,24 @@ class VLQ:
         Ratio: Gamma/M
         zeta : generation fractions [zeta1, zeta2, zeta3] (sum 1); default [0, 0, 1]
         '''
-        if self.Mass == None:
+        if self.Mass is None:
             raise ValueError('VLQ.calcRatioKappas: Please define mass to VLQ object with setMass method')
-        if not isNumber(Ratio) or Ratio <= 0:
+        if not isFinite(Ratio) or Ratio <= 0:
             raise ValueError(f'VLQ.calcRatioKappas: Gamma/M({self.type}) ratio must be a positive number (int or float)')
         if self.type in ['VLX','VLY']:
             BRs = 1
         else:
             BRs = checkBRs(BRs, 'VLQ.calcRatioKappas',
                            f'{self.type} must have 3 float branching values for {self.type} -> [{self.BRtext}]')
+        zeta = checkZeta(zeta, 'VLQ.calcRatioKappas')
+        # the object is changed only if the calculation succeeds
+        Kappas = functions.calcRatioKappas(self, BRs, toNumber(Ratio), zeta)
         self.Ratio = toNumber(Ratio)
         self.BRs = BRs
-        self.zeta = checkZeta(zeta, 'VLQ.calcRatioKappas')
-        functions.calcRatioKappas(self)
+        self.zeta = zeta
+        self.setKappas(Kappas)
+        # a VLQ_UFO coupling from an earlier conversion does not belong to the new couplings
+        self.KappaOld = None
 
     def table(self, style='md'):
         '''Returns the results as a Markdown (style='md') or aligned text (style='txt') table'''
@@ -250,12 +300,14 @@ class VLQ:
         from VLQcalc import output
         output.save(self, filename)
 
-    def plot(self, quantity='kappa', save=None, ax=None, logy=None):
+    def plot(self, quantity='kappa', save=None, ax=None, logy=None, combined=False):
         '''
         Plots the couplings ('kappa'), branching ratios ('BR') or partial widths ('width') against the mass.
 
         save: file name of the figure; ax: existing axes (single panel only);
-        logy: True or False for the y scale, chosen from the values if None. Needs matplotlib.
+        logy: True or False for the y scale, chosen from the values if None;
+        combined: with couplings to lighter quarks, True draws all channels in one panel
+        (one colour per boson) instead of one panel per boson. Needs matplotlib.
         '''
         from VLQcalc import output
-        return output.plot(self, quantity, save, ax, logy)
+        return output.plot(self, quantity, save, ax, logy, combined)

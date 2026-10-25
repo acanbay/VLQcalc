@@ -1,6 +1,6 @@
 '''
-Author: Ali Can Canbay - acanbay
-Date  : 25 October 2026
+Author : Ali Can Canbay - acanbay
+Created: 25 October 2026
 
 SM inputs used in the decay width calculations.
 Default values are the SM inputs of the VLQ_v4_UFO restrict cards [1,2]; MW, ee, sw and cw are derived
@@ -14,10 +14,10 @@ If the param_card used in MadGraph5 is changed, the same values should be set he
     https://feynrules.irmp.ucl.ac.be/
 [2] Fuks, B., & Shao, H. S. (2017).
     QCD next-to-leading-order predictions matched to parton showers for vector-like quark models.
-    The European Physical Journal C, 77(2), 1-21.
+    The European Physical Journal C, 77(2), 135.
     https://feynrules.irmp.ucl.ac.be/wiki/NLOModels
 '''
-import cmath
+import cmath, math, numbers
 ############
 # Independent inputs
 DEFAULTS = {'MZ': 91.1876, 'aEWM1': 127.9, 'Gf': 1.16637e-5, 'Mt': 172.0, 'Mb': 4.7, 'MH': 125.0}
@@ -38,8 +38,9 @@ def setSM(**inputs):
     if unknown:
         raise ValueError(f'Unknown SM input(s) {unknown}; allowed inputs are {list(DEFAULTS)}')
     for name, value in inputs.items():
-        if type(value) not in [int,float] or value <= 0:
+        if not isinstance(value, numbers.Real) or isinstance(value, bool) or not math.isfinite(value) or value <= 0:
             raise ValueError(f'SM input {name} must be a positive number')
+    inputs = {name: float(value) for name, value in inputs.items()}
     values = dict(DEFAULTS) if not inputs else {name: globals()[name] for name in DEFAULTS}
     values.update(inputs)
     globals().update(values)

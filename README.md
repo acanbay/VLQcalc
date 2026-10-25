@@ -74,6 +74,7 @@ mg5.createMG5Input('tp_pair')                # writes tp_pair.dat
 Without `zeta`, all decays go to 3rd generation quarks (`zeta=[0, 0, 1]`). Couplings to lighter quarks are set with the generation fractions ζ<sub>i</sub>, for example 20% of the decays into 2nd generation quarks:
 
 ```python
+vlq = model.VLQ('T')
 vlq.setMass([1000, 1500, 2000])
 vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05, zeta=[0, 0.2, 0.8])
 print(vlq.table('txt'))
@@ -128,10 +129,9 @@ The tests compare the widths with the formulas shipped with the UFO models and c
 ### References
 
 1. M. Buchkremer, G. Cacciapaglia, A. Deandrea, and L. Panizzi. Model-independent framework for searches of top partners. *Nuclear Physics B*, 876(2):376–417, 2013.
-2. B. Fuks and H. S. Shao. QCD next-to-leading-order predictions matched to parton showers for vector-like quark models. *The European Physical Journal C*, 77(2):1–21, 2017.
-3. N. D. Christensen and C. Duhr. Feynrules–Feynman rules made easy. *Computer Physics Communications*,180(9):1614–1641, 2009.
-4. J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, and T. Stelzer. Madgraph 5: going beyond. *Journal of High Energy Physics*, 2011(6):1–40, 2011.
+2. B. Fuks and H. S. Shao. QCD next-to-leading-order predictions matched to parton showers for vector-like quark models. *The European Physical Journal C*, 77(2):135, 2017.
+3. N. D. Christensen and C. Duhr. FeynRules – Feynman rules made easy. *Computer Physics Communications*, 180(9):1614–1641, 2009.
+4. J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, and T. Stelzer. MadGraph 5: going beyond. *Journal of High Energy Physics*, 2011(6):128, 2011.
 5. Jupyter et al. Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale. *Proceedings of the 17th Python in Science Conference*. 2018.
-6. A. C. Canbay. modifiedGA (Version 0.1.0) [Computer software]. [DOI: 10.5281/zenodo.12569505](https://doi.org/10.5281/zenodo.12569505), [GitHub: acanbay/modifiedGA](https://github.com/acanbay/modifiedGA). Used for the couplings up to version 0.1.2.
-7. J. A. Aguilar-Saavedra, R. Benbrik, S. Heinemeyer, and M. Pérez-Victoria. Handbook of vectorlike quarks: Mixing and single production. *Physical Review D*, 88(9):094010, 2013.
-8. S. Moretti, D. O'Brien, L. Panizzi, and H. Prager. Production of extra quarks at the Large Hadron Collider beyond the narrow width approximation. *Physical Review D*, 96(7):075035, 2017.
+6. J. A. Aguilar-Saavedra, R. Benbrik, S. Heinemeyer, and M. Pérez-Victoria. Handbook of vectorlike quarks: Mixing and single production. *Physical Review D*, 88(9):094010, 2013.
+7. S. Moretti, D. O'Brien, L. Panizzi, and H. Prager. Production of extra quarks at the Large Hadron Collider beyond the narrow width approximation. *Physical Review D*, 96(7):075035, 2017.

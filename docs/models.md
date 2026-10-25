@@ -54,13 +54,27 @@ $\Gamma^0_V$ are the kinematic factors of VLQ_UFO. $v$, $g = e/s_W$ and $c_W$ ar
 
 ### Both chiralities
 
-The VLQ_UFO model is built for one chirality and normalises the generation fractions to $\sum_i \zeta_i = 1$ [1]. With `LR=True` VLQcalc shares this normalisation equally between both chiralities: $\zeta_{iL} = \zeta_{iR} = \zeta_i/2$, which gives the factor $s = 1/2$ above ($s = 1$ with `LR=False`). With this choice, a given $\kappa_Q$ means about the same total width with and without `LR`. The model paper does not define the case with both chiralities, so this is a convention of VLQcalc.
+The VLQ_UFO model is built for one chirality and normalises the generation fractions to $\sum_i \zeta_i = 1$ [1]. With `LR=True` VLQcalc shares this normalisation equally between both chiralities: $\zeta_{iL} = \zeta_{iR} = \zeta_i/2$, which gives the factor $s = 1/2$ above ($s = 1$ with `LR=False`). With this choice, a given $\kappa_Q$ gives about the same total width with and without `LR` for B and Y (within 2% above 500 GeV) and for X above 1 TeV. For T the interference term of $T \to Ht$ ($\propto \kappa_L \kappa_R m_t M$), which VLQ_UFO does not have, makes the width with `LR=True` larger, by 17% at 1 TeV and 9% at 2 TeV. The model paper does not define the case with both chiralities, so this is a convention of VLQcalc.
 
 ### From VLQ_v4/VLQ_v5 to VLQ_UFO
 
-The reverse conversion (`reverse=True`) uses the couplings stored in the VLQ object. For each mass it computes the branching ratio of every channel with the VLQ_v4 formulas and inverts the formula above for every channel with a non-zero branching ratio; $\kappa_Q$ is the mean of these values. If the object has no branching ratios yet, the branching ratios of the bosons are stored in `vlq.BRs` (one value per mass) and written to the VLQ_UFO card as $\xi_V$.
+The reverse conversion (`reverse=True`) uses the couplings stored in the VLQ object and inverts the formula above exactly. With
 
-For X and Y the round trip VLQ_UFO → VLQ_v4 → VLQ_UFO is exact. For T and B it differs by a few per mille at 1 TeV, because the branching ratios of VLQ_v4 include the quark masses and those of VLQ_UFO do not.
+$$q_{V,i} = \frac{1}{s}\left(\frac{\kappa_{V,i}}{F_V(M)}\right)^2 = \kappa_Q^2\,\zeta_i\,\xi_V$$
+
+and $\sum_i \zeta_i = \sum_V \xi_V = 1$, the sums over the channels give
+
+$$\kappa_Q = \sqrt{\sum_{V,i} q_{V,i}}, \qquad \xi_V = \frac{1}{\kappa_Q^2}\sum_i q_{V,i}, \qquad \zeta_i = \frac{1}{\kappa_Q^2}\sum_V q_{V,i}.$$
+
+$\kappa_Q$ is stored in `vlq.KappaOld`, $\xi_V$ in `vlq.BRs` (one value per mass, for T and B) and $\zeta_i$ in `vlq.zeta`, and all of them are written to the VLQ_UFO card. The round trip VLQ_UFO → VLQ_v4 → VLQ_UFO returns the same $\kappa_Q$, $\xi_V$ and $\zeta_i$.
+
+$\xi_V$ are parameters of the VLQ_UFO vertices. They differ from the branching ratios, which include the quark masses: for example, the couplings of T for $\mathrm{BR}(Ht) = 0.5$ at 1 TeV give $\xi_H = 0.489$. Both models give the same widths for the converted couplings.
+
+VLQ_UFO describes only couplings of the form $\kappa_Q\sqrt{\zeta_i\,\xi_V}\,F_V$. Couplings to lighter quarks computed with `calcRatioKappas` do not have exactly this form, because the quark masses enter the widths of the 3rd generation only. In this case a warning is issued; $\kappa_Q$ and $\xi_V$ reproduce the total coupling and its share per boson, and `vlq.zeta` is kept.
+
+### Chirality of the Higgs coupling
+
+For leading left-handed mixing, the Higgs coupling in the Lagrangian of VLQ_UFO is $\bar{T}_R H q_L$ (Eqs. 2.1 and 3.2 of [1]), the structure that follows from the Yukawa origin of the mixing. The left-handed Higgs couplings of VLQ_v4 and VLQ_v5 (`KTLh`, `KBLh`) have the same structure, $\bar{T} P_L q$. VLQcalc therefore maps the left-handed couplings of VLQ_UFO to the left-handed couplings of VLQ_v4/VLQ_v5 for all bosons. The FeynRules implementation of VLQ_UFO (VLQ.fr, version 1.2.5) attaches its left-handed Higgs coupling to $\bar{T} P_R t$ instead. The widths do not depend on this, so the couplings, widths and cards of VLQcalc are not affected; only the helicity of the quark in $Q \to Hq$ differs between events generated with the two UFO models. Since the chirality of this vertex is fixed in the VLQ_UFO files and not by a parameter, it cannot be changed through the card. For studies that depend on the helicity of the quark in $Q \to Hq$, for example angular distributions or the top-quark polarisation, VLQ_v4_UFO or VLQ_v5_UFO should be used.
 
 ## References
 

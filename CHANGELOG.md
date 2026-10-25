@@ -2,7 +2,7 @@
 
 ## 0.2.0 (2026-10-25)
 
-Scripts written for 0.1.x keep working without changes. Some numerical results change; the reasons are listed under *Results that change*.
+Scripts written for 0.1.x keep working. Some numerical results change, for the reasons listed under *Results that change*, and a few behaviours change, as listed under *Changed*.
 
 ### Results that change
 
@@ -41,7 +41,6 @@ Scripts written for 0.1.x keep working without changes. Some numerical results c
 ### Changed
 
 - The license is MIT instead of GPL-3.0. Versions up to 0.1.2 remain under GPL-3.0.
-
 - Wrong inputs raise `ValueError` with a message that names the method, instead of printing the message and stopping Python with `sys.exit`. Scripts stop in the same way, and notebooks keep running.
 - After a conversion from VLQ_UFO, `vlq.KappaOld` is a list with one value (`[0.5]` instead of `0.5`), like after the reverse conversion; a number set by hand is still accepted.
 - `setMass` with new masses deletes the couplings computed for the previous masses, with a warning. Before, the old couplings were kept and written for the new masses.

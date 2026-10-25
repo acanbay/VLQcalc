@@ -112,7 +112,7 @@ Plots the couplings (`'kappa'`), branching ratios (`'BR'`) or partial widths (`'
 | `logy` | `True` or `False` for a logarithmic or linear y axis; by default the scale is chosen from the range of the values |
 | `combined` | with couplings to lighter quarks: `False` draws one panel per boson, `True` draws all channels in one panel |
 
-The plots are black and white. The channels are told apart by the line style: for 3rd generation couplings only, $H$ is solid, $W$ dashed and $Z$ dash-dotted; with couplings to lighter quarks, the 3rd generation is solid, the 2nd dashed and the 1st dotted. The solid line is drawn widest and below the others, so curves with equal values remain visible. With `combined=True` the boson is given by the colour and the generation by the line style. The width plot also shows the total width as a wide grey line.
+The plots are black and white, and a solid line is always the total width. The channels are told apart by the line style: for 3rd generation couplings only, $H$ is dashed, $W$ dash-dotted and $Z$ dotted; with couplings to lighter quarks, the 3rd generation is dashed, the 2nd dash-dotted and the 1st dotted. All lines have the same width. Curves that cannot be told apart in the plot are drawn as one line with a joint label: `Hb = Zb` if their values agree, `Hb ≈ Zb` if they differ by less than 2% of the axis range (of the decades on a logarithmic axis). With `combined=True` the boson is given by the colour and the generation by the same line styles; a joint line of different bosons is black. The total width is drawn only if there is more than one channel. Linear axes start at zero.
 
 ```python
 vlq.plot(save='kappas.pdf')                         # couplings

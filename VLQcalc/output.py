@@ -5,7 +5,7 @@ Created: 25 October 2026
 Tables, files and plots of the results stored in a VLQ object.
 Plots need matplotlib, which is an optional dependency (pip install VLQcalc[plot]).
 '''
-import json, os
+import json, math, os
 from VLQcalc import constants
 from VLQcalc.model import perMass
 ############
@@ -124,12 +124,13 @@ def save(VLQ, filename):
     with open(filename, 'w') as f:
         f.write(text)
 
-# Line styles: the solid line is drawn first and wider, so that a line drawn on top of it stays visible
-# when two curves coincide. Colours are used only with combined=True, where they mark the boson.
-STYLE = {'h': ('-', 2.0), 'w': ('--', 1.2), 'z': ('-.', 1.2)}
-GENSTYLE = {3: ('-', 2.0), 2: ('--', 1.2), 1: (':', 1.6)}
+# Line styles: a solid black line is always the total width; the channels are dashed, dash-dotted and
+# dotted. All lines have the same width. Colours are used only with combined=True, where they mark the
+# boson; the line styles do not change. Curves that cannot be told apart are drawn once (see plot).
+STYLE = {'h': '--', 'w': '-.', 'z': ':'}
+GENSTYLE = {3: '--', 2: '-.', 1: ':'}
 COLOR = {'h': '#0072B2', 'w': '#D55E00', 'z': '#009E73'}
-WIDTHSCALE = {'h': 1.6, 'w': 1.1, 'z': 0.7}
+LINEWIDTH = 1.5
 
 def plot(VLQ, quantity='kappa', save=None, ax=None, logy=None, combined=False):
     # quantity: 'kappa', 'BR' or 'width'. With couplings to lighter generations there is one panel per boson,
@@ -137,7 +138,6 @@ def plot(VLQ, quantity='kappa', save=None, ax=None, logy=None, combined=False):
     # Returns the matplotlib axes (an array of axes for several panels).
     try:
         import matplotlib.pyplot as plt
-        import matplotlib.patheffects as effects
     except ImportError:
         raise ImportError('VLQ.plot needs matplotlib: pip install VLQcalc[plot]') from None
     if quantity not in ['kappa', 'BR', 'width']:
@@ -159,7 +159,12 @@ def plot(VLQ, quantity='kappa', save=None, ax=None, logy=None, combined=False):
                              'for couplings to lighter quarks')
         axes = [ax]
     single = len(VLQ.Mass) == 1
+    sharedPositive = [w[channel]/(sum(w.values()) if quantity == 'BR' else 1) for w in widths
+                      for channel in [(b,g) for b, g, q in channels(VLQ)] if w[channel] > 0 and sum(w.values()) > 0]
+    if quantity == 'width' and len(channels(VLQ)) > 1:
+        sharedPositive += [sum(w.values()) for w in widths if sum(w.values()) > 0]
     for axis, panel in zip(axes, panels):
+        curves = []
         for boson, gen, quark in channels(VLQ):
             if panel is not None and boson != panel:
                 continue
@@ -172,27 +177,62 @@ def plot(VLQ, quantity='kappa', save=None, ax=None, logy=None, combined=False):
                 else:
                     values = [w[(boson,gen)] for w in widths]
                 label = rf'${boson.upper()}{quark}$'
-            if light:
-                style, width = GENSTYLE[gen]
-            elif len(VLQ.bosons) > 1:
-                style, width = STYLE[boson]
+            style = GENSTYLE[gen] if light else STYLE[boson]
+            color = COLOR[boson] if combined and len(VLQ.bosons) > 1 else 'black'
+            curves.append({'values': list(values), 'labels': [label], 'style': style, 'color': color, 'exact': True})
+        # The y scale is chosen before the curves are compared: logarithmic for values over more than two decades
+        total = [sum(w.values()) for w in widths] if quantity == 'width' and len(channels(VLQ)) > 1 else []
+        allValues = [v for c in curves for v in c['values']] + total
+        positive = [v for v in allValues if v > 0]
+        # panels of BR and widths share the y axis, so one decision is taken for all of them
+        decide = positive if quantity == 'kappa' else sharedPositive
+        useLog = logy if logy is not None else (len(decide) > 0 and max(decide)/min(decide) > 100)
+        # Curves that cannot be told apart in the plot are drawn once, with a joint label: '=' if the values
+        # agree to the shown precision, '≈' if they differ by less than 2% of the axis (in decades on a log axis)
+        if useLog and positive:
+            position = lambda v: math.log10(v) if v > 0 else math.log10(min(positive)) - 1
+            span = math.log10(max(positive)) - math.log10(min(positive)) + 1
+        else:
+            position = lambda v: v
+            span = max([abs(v) for v in allValues] + [0])
+        span = max(span, 1e-30)
+        groups = []
+        for curve in curves:
+            for group in groups:
+                difference = max(abs(position(a) - position(b)) for a, b in zip(curve['values'], group['values']))
+                if difference <= 1e-4*span:
+                    group['labels'] += curve['labels']
+                    group['colors'].add(curve['color'])
+                    break
+                if difference <= 0.02*span:
+                    group['labels'] += curve['labels']
+                    group['colors'].add(curve['color'])
+                    group['exact'] = False
+                    break
             else:
-                style, width = '-', 1.4
-            color = 'black'
-            if combined and len(VLQ.bosons) > 1:
-                # wider lines below narrower ones, so coinciding curves of different bosons stay visible
-                color, width = COLOR[boson], width * WIDTHSCALE[boson]
-            # a white edge keeps dashed and dotted lines visible on top of a solid line
-            edge = [effects.withStroke(linewidth=width + 2, foreground='white')] if style != '-' else None
-            axis.plot(VLQ.Mass, values, style, color=color, linewidth=width, zorder=4 - width,
-                      marker='o' if single else None, markersize=4, label=label, path_effects=edge)
-        if quantity == 'width':
-            axis.plot(VLQ.Mass, [sum(w.values()) for w in widths], '-', color='0.7', linewidth=3,
-                      zorder=1, marker='o' if single else None, markersize=4, label='total')
-        positive = [v for line in axis.get_lines() for v in line.get_ydata() if v > 0]
-        useLog = logy if logy is not None else (len(positive) > 0 and max(positive)/min(positive) > 100)
+                curve['colors'] = {curve['color']}
+                groups.append(curve)
+        for group in groups:
+            label = (' = ' if group['exact'] else r' $\approx$ ').join(group['labels'])
+            # a joint line of different bosons is black, since the colour marks one boson
+            color = group['color'] if len(group['colors']) == 1 else 'black'
+            axis.plot(VLQ.Mass, group['values'], group['style'], color=color, linewidth=LINEWIDTH, zorder=3,
+                      marker='o' if single else None, markersize=4, label=label)
+        if total:
+            # the total equals the only channel if there is one channel, so it is drawn only for several
+            axis.plot(VLQ.Mass, total, '-', color='black', linewidth=LINEWIDTH,
+                      zorder=2, marker='o' if single else None, markersize=4, label='total')
         if useLog:
             axis.set_yscale('log')
+            if positive:
+                # half a decade of space above the largest value, for the legend
+                axis.set_ylim(top=3*max(sharedPositive if quantity != 'kappa' else positive))
+        else:
+            # linear axes start at zero, with some space above the largest value; constant values are
+            # drawn as flat lines, not as rounding noise
+            axis.ticklabel_format(axis='y', useOffset=False)
+            largest = max([v for line in axis.get_lines() for v in line.get_ydata()], default=0)
+            axis.set_ylim(0, 1.08*largest if largest > 0 else 1)
         axis.set_xlabel(rf'$m_{{{NAME[VLQ.type]}}}$ [GeV]', loc='right')
         if not single:
             axis.set_xlim(min(VLQ.Mass), max(VLQ.Mass))

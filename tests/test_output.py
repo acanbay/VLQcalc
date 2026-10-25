@@ -65,7 +65,9 @@ def test_single_panel_plot(tmp_path):
     vlq.setMass(range(1000, 2001, 100))
     vlq.calcRatioKappas(Ratio=0.1)
     ax = vlq.plot()
-    assert len(ax.get_lines()) == 1 and ax.get_lines()[0].get_linestyle() == '-'
+    assert len(ax.get_lines()) == 1 and ax.get_lines()[0].get_linestyle() == '-.'
+    # one channel: the total equals it and is not drawn
+    assert [line.get_label() for line in vlq.plot('width').get_lines()] == [r'$Wt$']
 
 @pytest.mark.parametrize('quantity', ['kappa', 'BR', 'width'])
 def test_combined_plot(tmp_path, vlq, quantity):
@@ -73,10 +75,12 @@ def test_combined_plot(tmp_path, vlq, quantity):
     import matplotlib
     matplotlib.use('Agg')
     ax = vlq.plot(quantity, combined=True, save=str(tmp_path / f'{quantity}.png'))
-    channels = len([line for line in ax.get_lines() if line.get_label() != 'total'])
-    assert channels == 6 and (tmp_path / f'{quantity}.png').exists()
-    colors = {line.get_color() for line in ax.get_lines() if line.get_label() != 'total'}
-    assert len(colors) == 3
+    assert (tmp_path / f'{quantity}.png').exists()
+    # every channel is in the legend, alone or in a joint label; colours mark single bosons
+    labels = ' '.join(line.get_label() for line in ax.get_lines())
+    for name in (['H', 'W', 'Z'] if quantity != 'kappa' else ['{H,', '{W,', '{Z,']):
+        assert labels.count(name) == 2
+    assert {line.get_color() for line in ax.get_lines()} <= {'#0072B2', '#D55E00', '#009E73', 'black'}
 
 def test_combined_plot_into_given_axes(vlq):
     plt = pytest.importorskip('matplotlib.pyplot')
@@ -87,16 +91,74 @@ def test_combined_plot_into_given_axes(vlq):
     with pytest.raises(ValueError):
         vlq.plot(combined='yes')
 
-def test_monochrome_plot_draws_solid_line_widest():
+def test_line_styles():
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    vlq = model.VLQ('T')
+    vlq.setMass(range(1000, 2001, 100))
+    vlq.calcRatioKappas([0.6, 0.3, 0.1], 0.1)
+    lines = vlq.plot('width').get_lines()
+    styles = {line.get_label(): (line.get_linestyle(), line.get_color()) for line in lines}
+    # a solid black line is the total width only; the channels are dashed, dash-dotted and dotted
+    assert styles['total'] == ('-', 'black')
+    assert [styles[name][0] for name in [r'$Ht$', r'$Wb$', r'$Zt$']] == ['--', '-.', ':']
+    # all lines have the same width
+    assert len({line.get_linewidth() for line in lines}) == 1
+
+
+def test_equal_curves_are_drawn_once():
     pytest.importorskip('matplotlib')
     import matplotlib
     matplotlib.use('Agg')
     vlq = model.VLQ('B')
     vlq.setMass(range(1000, 2001, 100))
     vlq.calcRatioKappas([0.25, 0.5, 0.25], 0.1)
-    lines = vlq.plot('BR').get_lines()
-    assert {line.get_color() for line in lines} == {'black'}
-    solid = [line for line in lines if line.get_linestyle() == '-']
-    others = [line for line in lines if line.get_linestyle() != '-']
-    assert all(s.get_linewidth() > o.get_linewidth() and s.get_zorder() < o.get_zorder()
-               for s in solid for o in others)
+    assert sorted(line.get_label() for line in vlq.plot('BR').get_lines()) == [r'$Hb$ = $Zb$', r'$Wt$']
+    # curves that only cannot be told apart in the plot are joined with ≈
+    labels = [line.get_label() for line in vlq.plot().get_lines()]
+    assert r'$\kappa_{W,t}$ $\approx$ $\kappa_{Z,b}$' in labels
+
+
+def test_joint_line_of_different_bosons_is_black():
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    vlq = model.VLQ('B', LR=True)
+    vlq.setMass(range(1000, 2001, 100))
+    vlq.calcRatioKappas([0.25, 0.5, 0.25], 0.1, zeta=[0.1, 0.3, 0.6])
+    colors = {line.get_label(): line.get_color() for line in vlq.plot('BR', combined=True).get_lines()}
+    assert colors[r'$Hb$ = $Wc$ = $Zb$'] == 'black' and colors[r'$Wt$'] == '#D55E00'
+
+
+def test_log_axis_compares_ratios():
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    vlq = model.VLQ('B', LR=True)
+    vlq.setMass(range(1000, 3001, 100))
+    vlq.calcRatioKappas([0.25, 0.5, 0.25], 0.1, zeta=[0.1, 0.3, 0.6])
+    axes = vlq.plot('width')
+    assert axes[0].get_yscale() == 'log'
+    # widths that differ by a factor 3 are separate lines on a log axis
+    assert [line.get_label() for line in axes[0].get_lines()] == [r'$Hd$', r'$Hs$', r'$Hb$', 'total']
+
+
+def test_combined_plot_keeps_line_styles(vlq):
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    panels = [line.get_linestyle() for ax in vlq.plot('width') for line in ax.get_lines()]
+    combined = [line.get_linestyle() for line in vlq.plot('width', combined=True).get_lines()]
+    assert sorted(set(panels)) == sorted(set(combined))
+
+
+def test_constant_values_start_at_zero():
+    pytest.importorskip('matplotlib')
+    import matplotlib
+    matplotlib.use('Agg')
+    vlq = model.VLQ('B')
+    vlq.setMass(range(1000, 2001, 100))
+    vlq.calcRatioKappas([1/3, 1/3, 1/3], 0.1)
+    ax = vlq.plot('BR')
+    assert ax.get_ylim()[0] == 0 and ax.get_ylim()[1] > 0.3

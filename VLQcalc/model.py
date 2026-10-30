@@ -1,13 +1,14 @@
 '''
 Author : Ali Can Canbay - acanbay
 Created: 21 May 2024
-Updated: 25 October 2026
+Updated: 30 October 2026
 
 This module contains the VLQ object. It debugs commands and communicates with other modules.
 '''
 from VLQcalc import decays
 from VLQcalc import modelConverter
 from VLQcalc import functions
+from VLQcalc import constants
 import math, numbers, warnings
 ############
 def isNumber(value):
@@ -39,7 +40,8 @@ def checkBRs(BRs, where, text, name='branchings'):
         BRs = None
     if BRs is None or len(BRs) != 3 or not all(isFinite(BR) for BR in BRs):
         raise ValueError(f'{where}: {text}')
-    if any(BR < 0 for BR in BRs) or not math.isclose(sum(BRs), 1, abs_tol=1e-9):
+    # the tolerance accepts fractions rounded to 6 significant digits, as VLQcalc writes them
+    if any(BR < 0 for BR in BRs) or not math.isclose(sum(BRs), 1, abs_tol=1e-5):
         raise ValueError(f'{where}: the sum of all {name} must be 1 and each of them must be non-negative')
     return BRs
 
@@ -92,22 +94,22 @@ class VLQ:
 
         if FNS == 4:
             if self.type == 'VLT':
-                self.calcDecay = decays.decayTP4
+                self.decay = decays.decayTP4
             elif self.type == 'VLB':
-                self.calcDecay = decays.decayBP4
+                self.decay = decays.decayBP4
             elif self.type == 'VLX':
-                self.calcDecay = decays.decayX4
+                self.decay = decays.decayX4
             elif self.type == 'VLY':
-                self.calcDecay = decays.decayY4
+                self.decay = decays.decayY4
         elif FNS == 5:
             if self.type == 'VLT':
-                self.calcDecay = decays.decayTP5
+                self.decay = decays.decayTP5
             elif self.type == 'VLB':
-                self.calcDecay = decays.decayBP5
+                self.decay = decays.decayBP5
             elif self.type == 'VLX':
-                self.calcDecay = decays.decayX5
+                self.decay = decays.decayX5
             elif self.type == 'VLY':
-                self.calcDecay = decays.decayY5
+                self.decay = decays.decayY5
 
         # Checking the LR value
         if type(LR)!=bool:
@@ -117,6 +119,8 @@ class VLQ:
         self.Mass = None
         self.Branchings = None
         self.KappaOld = None
+        # KappaOld computed by convertModel(..., reverse=True); it belongs to the masses it was computed for
+        self.KappaOldConverted = None
         self.KappaH = None
         self.KappaW = None
         self.KappaZ = None
@@ -126,6 +130,15 @@ class VLQ:
         self.zeta = [0, 0, 1]
         # Couplings to the 1st and 2nd generation quarks: {(boson, generation): [kappa per mass]}
         self.KappaLight = {}
+        # SM inputs the couplings were computed with (constants.setSM may change them later)
+        self.SM = None
+
+    def calcDecay(self, M, Kappas, LR=None):
+        '''
+        Widths of the 3rd generation channels for the mass M and Kappas = [kH, kW, kZ] (T, B) or kW (X, Y):
+        (H, W, Z, total) for T and B, the W width for X and Y. LR is the one of the object unless given.
+        '''
+        return self.decay(M, Kappas, self.LR if LR is None else LR)
 
     @property
     def bosons(self):
@@ -168,7 +181,8 @@ class VLQ:
                 values = third[boson] if gen == 3 else self.KappaLight.get((boson,gen))
                 if values is not None:
                     Kappas[(boson,gen)] = perMass(values, len(self.Mass), 'VLQ.calcWidths')[index]
-        return decays.partialWidths(self.type, self.FNS, self.Mass[index], Kappas, self.LR)
+        with constants.using(self.SM):
+            return decays.partialWidths(self.type, self.FNS, self.Mass[index], Kappas, self.LR)
 
     def setMass(self, Masses):
         '''
@@ -200,8 +214,11 @@ class VLQ:
         self.KappaH = self.KappaW = self.KappaZ = None
         self.KappaLight = {}
         self.Ratio = None
-        if self.KappaOld is not None and (isNumber(self.KappaOld) or len(self.KappaOld) != 1):
+        if self.KappaOld is not None and (self.KappaOld is self.KappaOldConverted
+                                          or (not isNumber(self.KappaOld) and len(self.KappaOld) != 1)):
             self.KappaOld = None
+        self.KappaOldConverted = None
+        self.SM = None
         if type(self.BRs) == list and any(type(BR) == list for BR in self.BRs):
             self.BRs = None
 
@@ -227,7 +244,7 @@ class VLQ:
                 BRs = checkBRs(BRs, 'VLQ.convertModel',
                                f'{self.type} must have 3 float branching values (xi) in old model -> [xiH, xiW, xiZ]')
             zeta = checkZeta(zeta, 'VLQ.convertModel')
-            if type(Kappas) in [list,tuple] and len(Kappas)==1:
+            if hasattr(Kappas, '__len__') and not isinstance(Kappas, (str, dict)) and len(Kappas)==1:
                 Kappas = Kappas[0]
             if not isFinite(Kappas):
                 raise ValueError(f'VLQ.convertModel: kappa value to be converted must be a number -> {self.OldKappatext}')
@@ -237,9 +254,21 @@ class VLQ:
                 warnings.warn(f'VLQ.convertModel: deleting old kappa values for {self.NewKappatext}', stacklevel=2)
             self.zeta = zeta
             self.KappaOld = [Kappas]
+            self.KappaOldConverted = None
             self.BRs = BRs
             self.Ratio = None
             self.setKappas(converted)
+            self.SM = constants.inputs()
+            # VLQ_UFO neglects the quark masses, so a channel can be open in VLQ_UFO but closed in VLQ_v4/VLQ_v5
+            closed = set()
+            for i, Mass in enumerate(self.Mass):
+                unit = decays.partialWidths(self.type, self.FNS, Mass, {channel: 1 for channel in converted}, self.LR)
+                closed |= {(channel, Mass) for channel, values in converted.items() if values[i] != 0 and unit[channel] <= 0}
+            if closed:
+                text = ', '.join(f'{self.type} -> {boson.upper()} + generation {gen} quark at M = {Mass} GeV'
+                                 for (boson, gen), Mass in sorted(closed))
+                warnings.warn(f'VLQ.convertModel: channels kinematically closed in VLQ_v4/VLQ_v5, whose couplings give '
+                              f'no width there: {text}', stacklevel=2)
         else:
             if zeta is not None:
                 raise ValueError('VLQ.convertModel: zeta is only used for VLQ_UFO -> VLQ_v4; '
@@ -256,12 +285,18 @@ class VLQ:
             if self.type in ['VLX','VLY']:
                 self.KappaW = asList(Kappas)
             else:
-                if type(Kappas) not in [list,tuple] or len(Kappas) != 3:
+                if hasattr(Kappas, '__len__') and not isinstance(Kappas, (str, dict)):
+                    Kappas = list(Kappas)
+                if type(Kappas) != list or len(Kappas) != 3:
                     raise ValueError(f'VLQ.convertModel: {self.type} needs 3 kappa values (or lists) -> [{self.NewKappatext}]')
                 self.KappaH, self.KappaW, self.KappaZ = [asList(ks) for ks in Kappas]
             if self.KappaOld is not None:
                 warnings.warn(f'VLQ.convertModel: deleting old kappa values for {self.OldKappatext}', stacklevel=2)
             self.KappaOld = modelConverter.convert(self,None,reverse=reverse)
+            self.KappaOldConverted = self.KappaOld
+            self.SM = constants.inputs()
+            # the couplings are given directly, so a Gamma/M from an earlier calcRatioKappas does not belong to them
+            self.Ratio = None
 
     def calcRatioKappas(self,BRs=None,Ratio=None,zeta=None):
         '''
@@ -287,8 +322,10 @@ class VLQ:
         self.BRs = BRs
         self.zeta = zeta
         self.setKappas(Kappas)
+        self.SM = constants.inputs()
         # a VLQ_UFO coupling from an earlier conversion does not belong to the new couplings
         self.KappaOld = None
+        self.KappaOldConverted = None
 
     def table(self, style='md'):
         '''Returns the results as a Markdown (style='md') or aligned text (style='txt') table'''

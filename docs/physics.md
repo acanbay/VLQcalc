@@ -9,9 +9,9 @@ A vector-like quark $Q$ decays into a boson $V = H, W, Z$ and a quark $q_i$ of g
 | VLQ | Charge | $H$ | $W$ | $Z$ |
 |-|:-:|:-:|:-:|:-:|
 | T | 2/3 | $u, c, t$ | $d, s, b$ | $u, c, t$ |
-| B | −1/3 | $d, s, b$ | $u, c, t$ | $d, s, b$ |
-| X | 5/3 | – | $u, c, t$ | – |
-| Y | −4/3 | – | $d, s, b$ | – |
+| B | $-1/3$ | $d, s, b$ | $u, c, t$ | $d, s, b$ |
+| X | 5/3 | - | $u, c, t$ | - |
+| Y | $-4/3$ | - | $d, s, b$ | - |
 
 The 1st and 2nd generation quarks are massless. The top quark has $m_t$ in both flavour schemes; the bottom quark has $m_b$ in the 4-flavour scheme (`FNS=4`) and is massless in the 5-flavour scheme (`FNS=5`).
 
@@ -21,7 +21,7 @@ Decays into another VLQ (for example $T \to W B$ in VLQ_v5) are not included.
 
 In VLQ_v4_UFO and VLQ_v5_UFO [2] the interactions of a T quark with the SM quarks are
 
-$$\mathcal{L}_T = \frac{g}{\sqrt{2}}\, W^+_\mu\, \bar{T} \gamma^\mu \left(\kappa^W_{L,i} P_L + \kappa^W_{R,i} P_R\right) d_i + \frac{g}{2c_W}\, Z_\mu\, \bar{T} \gamma^\mu \left(\kappa^Z_{L,i} P_L + \kappa^Z_{R,i} P_R\right) u_i + H\, \bar{T} \left(\kappa^H_{L,i} P_L + \kappa^H_{R,i} P_R\right) u_i + \mathrm{h.c.},$$
+$$\mathcal{L}_T = \frac{g}{\sqrt{2}}\thinspace  W^+_\mu\thinspace  \bar{T} \gamma^\mu \left(\kappa^W_{L,i} P_L + \kappa^W_{R,i} P_R\right) d_i + \frac{g}{2c_W}\thinspace  Z_\mu\thinspace  \bar{T} \gamma^\mu \left(\kappa^Z_{L,i} P_L + \kappa^Z_{R,i} P_R\right) u_i + H\thinspace  \bar{T} \left(\kappa^H_{L,i} P_L + \kappa^H_{R,i} P_R\right) u_i + \mathrm{h.c.},$$
 
 summed over the generations $i = 1, 2, 3$, with $g = e/s_W$ and $P_{L,R} = (1 \mp \gamma^5)/2$. For B the up- and down-type quarks are exchanged ($W^-$ with $u_i$; $Z$ and $H$ with $d_i$); X couples through $W^+$ to $u_i$ and Y through $W^-$ to $d_i$.
 
@@ -37,9 +37,9 @@ $$\lambda^{1/2}(M, m_q, m_V) = \sqrt{M^4 + m_q^4 + m_V^4 - 2M^2m_q^2 - 2M^2m_V^2
 
 the partial widths are
 
-$$\Gamma(Q \to H q) = \frac{3\left[(\kappa_L^2 + \kappa_R^2)(m_q^2 + M^2 - m_H^2) + 4\kappa_L\kappa_R\, m_q M\right]}{96\pi M^3}\,\lambda^{1/2}(M, m_q, m_H),$$
+$$\Gamma(Q \to H q) = \frac{3\left[(\kappa_L^2 + \kappa_R^2)(m_q^2 + M^2 - m_H^2) + 4\kappa_L\kappa_R\thinspace  m_q M\right]}{96\pi M^3}\thinspace \lambda^{1/2}(M, m_q, m_H),$$
 
-$$\Gamma(Q \to V q) = \frac{3g_V^2\left[(\kappa_L^2 + \kappa_R^2)\left(m_q^2 + M^2 + \frac{(M^2 - m_q^2)^2}{m_V^2} - 2m_V^2\right) - 12\kappa_L\kappa_R\, m_q M\right]}{96\pi M^3}\,\lambda^{1/2}(M, m_q, m_V)$$
+$$\Gamma(Q \to V q) = \frac{3g_V^2\left[(\kappa_L^2 + \kappa_R^2)\left(m_q^2 + M^2 + \frac{(M^2 - m_q^2)^2}{m_V^2} - 2m_V^2\right) - 12\kappa_L\kappa_R\thinspace  m_q M\right]}{96\pi M^3}\thinspace \lambda^{1/2}(M, m_q, m_V)$$
 
 for $V = W, Z$, with the gauge factors
 
@@ -49,25 +49,25 @@ These are the expressions in the `decays.py` files of the VLQ_v4 models, written
 
 The total width is the sum over all channels, $\Gamma = \sum_{V,i} \Gamma(Q \to V q_i)$.
 
-## Couplings from Γ/M and branching ratios
+## Couplings from the width-to-mass ratio and branching ratios
 
 `calcRatioKappas(BRs, Ratio, zeta)` takes
 
 - the branching ratios of the bosons, $\mathrm{BR}_V$ (for X and Y only $W$, so $\mathrm{BR}_W = 1$),
 - the width-to-mass ratio $\Gamma/M$,
-- the generation fractions $\zeta = (\zeta_1, \zeta_2, \zeta_3)$, with $\sum_i \zeta_i = 1$ (default $(0, 0, 1)$).
+- the generation fractions $\zeta = (\zeta_1, \zeta_2, \zeta_3)$, with $\sum_i \zeta_i = 1$ (default `[0, 0, 1]`).
 
 The branching ratio of each channel is
 
-$$\mathrm{BR}(Q \to V q_i) = \zeta_i\, \mathrm{BR}_V,$$
+$$\mathrm{BR}(Q \to V q_i) = \zeta_i\thinspace  \mathrm{BR}_V,$$
 
-which is the same factorisation as in VLQ_UFO [1].
+which is the same factorisation as in VLQ_UFO [1] for massless quarks. In VLQ_UFO, $\zeta_i$ is a fraction of the coupling squared and neglects the quark masses, so with a massive top or bottom quark the two definitions differ slightly; see [Models](models.md#conversion-between-vlq_ufo-and-vlq_v4vlq_v5).
 
 Every partial width is proportional to $\kappa^2$; this also holds with `LR=True`, where $\kappa_L = \kappa_R = \kappa$ and the interference term is proportional to $\kappa^2$ as well. The coupling of each channel is therefore
 
-$$\kappa_{V,i} = \sqrt{\frac{\zeta_i\, \mathrm{BR}_V\, (\Gamma/M)\, M}{\Gamma(Q \to V q_i)\big|_{\kappa = 1}}}.$$
+$$\kappa_{V,i} = \sqrt{\frac{\zeta_i\thinspace  \mathrm{BR}_V\thinspace  (\Gamma/M)\thinspace  M}{\Gamma(Q \to V q_i)\big|_{\kappa = 1}}}.$$
 
-The couplings are rounded to 6 significant digits. A channel with a non-zero branching ratio that is kinematically closed (for example $T \to Ht$ for $M < m_H + m_t$) raises a `ValueError`.
+The couplings are rounded to 6 significant digits. A channel with a non-zero branching ratio that is kinematically closed (for example $T \to Ht$ for $M \lt  m_H + m_t$) raises a `ValueError`.
 
 ## SM inputs
 
@@ -77,14 +77,14 @@ The default inputs are the default parameters of VLQ_v4 and VLQ_v5 (the same in 
 |-|-|-|
 | $m_Z$ | 91.1876 GeV | `MZ` |
 | $1/\alpha_{EW}$ | 127.9 | `aEWM1` |
-| $G_F$ | 1.16637 × 10⁻⁵ GeV⁻² | `Gf` |
+| $G_F$ | $1.16637 \times 10^{-5}\ \mathrm{GeV}^{-2}$ | `Gf` |
 | $m_t$ | 172 GeV | `Mt` |
 | $m_b$ | 4.7 GeV (4FNS only) | `Mb` |
 | $m_H$ | 125 GeV | `MH` |
 
 The other parameters are derived as in the models:
 
-$$m_W = \sqrt{\frac{m_Z^2}{2} + \sqrt{\frac{m_Z^4}{4} - \frac{\pi\alpha_{EW} m_Z^2}{\sqrt{2}\,G_F}}} = 79.824\ \mathrm{GeV}, \qquad e = \sqrt{4\pi\alpha_{EW}}, \qquad s_W^2 = 1 - \frac{m_W^2}{m_Z^2}.$$
+$$m_W = \sqrt{\frac{m_Z^2}{2} + \sqrt{\frac{m_Z^4}{4} - \frac{\pi\alpha_{EW} m_Z^2}{\sqrt{2}\thinspace G_F}}} = 79.824\ \mathrm{GeV}, \qquad e = \sqrt{4\pi\alpha_{EW}}, \qquad s_W^2 = 1 - \frac{m_W^2}{m_Z^2}.$$
 
 If the param_card of MadGraph5 is changed, the same values should be given to VLQcalc, otherwise the widths differ:
 
@@ -97,6 +97,8 @@ constants.setSM()                    # back to the defaults
 ```
 
 $m_W$ cannot be set directly, because it is not an independent parameter of the models.
+
+The couplings are computed with the SM inputs set at that time, and the object keeps them: tables, files and widths of the object use them, also after a later `setSM`. MadGraph5 cards do not change SM inputs.
 
 ## Choosing the settings
 

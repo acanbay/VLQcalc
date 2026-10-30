@@ -1,6 +1,7 @@
 '''
 Author : Ali Can Canbay - acanbay
 Created: 25 October 2026
+Updated: 30 October 2026
 
 Tables, files and plots of the results stored in a VLQ object.
 Plots need matplotlib, which is an optional dependency (pip install VLQcalc[plot]).
@@ -50,6 +51,11 @@ def columns(VLQ):
         cols.append((f'k_{NAME[VLQ.type]} (VLQ_UFO)', rf'$\kappa_{{{NAME[VLQ.type]}}}$ (VLQ_UFO)', old))
     return cols
 
+def SMinputs(VLQ):
+    # The SM inputs the couplings were computed with, together with the derived MW
+    with constants.using(VLQ.SM):
+        return {name: float(fmt(value)) for name, value in constants.getSM().items()}
+
 def metadata(VLQ):
     # Settings needed to reproduce the numbers
     meta = {'VLQ': f'{NAME[VLQ.type]} (charge {CHARGE[VLQ.type]})',
@@ -58,15 +64,17 @@ def metadata(VLQ):
             'Gamma/M': VLQ.Ratio,
             'branchings': None,
             'zeta': VLQ.zeta,
-            'SM inputs': {name: float(fmt(value)) for name, value in constants.getSM().items()}}
+            'SM inputs': SMinputs(VLQ)}
+    # With couplings to lighter quarks the branchings are the totals per boson, summed over the generations
+    labels = VLQ.BRtext.split(',') if list(VLQ.zeta) == [0, 0, 1] else [f'BR({boson.upper()})' for boson in VLQ.bosons]
     if type(VLQ.BRs) == list and all(type(BR) != list for BR in VLQ.BRs):
         if VLQ.Ratio is None and VLQ.KappaOld is not None:
             # after convertModel the inputs are the branching ratios xi of VLQ_UFO, which neglect the quark masses
             meta['xi (VLQ_UFO)'] = dict(zip(['xi(H)', 'xi(W)', 'xi(Z)'], VLQ.BRs))
         else:
-            meta['branchings'] = dict(zip(VLQ.BRtext.split(','), VLQ.BRs))
+            meta['branchings'] = dict(zip(labels, VLQ.BRs))
     elif VLQ.type in ['VLX','VLY']:
-        meta['branchings'] = {VLQ.BRtext: 1}
+        meta['branchings'] = {labels[0]: 1}
     return {key: value for key, value in meta.items() if value is not None}
 
 def metadataLines(VLQ):
@@ -188,7 +196,7 @@ def plot(VLQ, quantity='kappa', save=None, ax=None, logy=None, combined=False):
         decide = positive if quantity == 'kappa' else sharedPositive
         useLog = logy if logy is not None else (len(decide) > 0 and max(decide)/min(decide) > 100)
         # Curves that cannot be told apart in the plot are drawn once, with a joint label: '=' if the values
-        # agree to the shown precision, '≈' if they differ by less than 2% of the axis (in decades on a log axis)
+        # agree to the shown precision, '$\approx$' if they differ by less than 2% of the axis (in decades on a log axis)
         if useLog and positive:
             position = lambda v: math.log10(v) if v > 0 else math.log10(min(positive)) - 1
             span = math.log10(max(positive)) - math.log10(min(positive)) + 1

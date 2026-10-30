@@ -20,7 +20,7 @@ Orhan Cakir <a href="https://orcid.org/0000-0002-9016-138X"><img src="https://or
 <br>
 
 VLQcalc works with the vector-like quark (VLQ) models VLQ_UFO [1], VLQ_v4_UFO and VLQ_v5_UFO [2], which were prepared with FeynRules [3]. It can:
-* compute the couplings that give a chosen width-to-mass ratio (Γ/M) and chosen branching ratios,
+* compute the couplings that give a chosen width-to-mass ratio ($\Gamma/M$) and chosen branching ratios,
 * compute partial and total decay widths, with the same formulas and SM inputs as the models,
 * include couplings to the 1st and 2nd generation quarks,
 * convert couplings between VLQ_UFO and VLQ_v4_UFO/VLQ_v5_UFO,
@@ -68,10 +68,10 @@ vlq.plot(save='kappas.pdf')                  # needs matplotlib
 
 mg5 = madgraph.MG5(vlq, 'VLQ_v4_UFO')
 mg5.setProcess('p p > tp tp~, tp > w+ b')
-mg5.createMG5Input('tp_pair')                # writes tp_pair.dat
+mg5.createMG5Input('tp_pair')                # writes tp_pair.dat; MadGraph5 computes the width (WTP auto)
 ```
 
-Without `zeta`, all decays go to 3rd generation quarks (`zeta=[0, 0, 1]`). Couplings to lighter quarks are set with the generation fractions ζ<sub>i</sub>, for example 20% of the decays into 2nd generation quarks:
+Without `zeta`, all decays go to 3rd generation quarks (`zeta=[0, 0, 1]`). Couplings to lighter quarks are set with the generation fractions $\zeta_i$, for example 20% of the decays into 2nd generation quarks:
 
 ```python
 vlq = model.VLQ('T')
@@ -87,7 +87,7 @@ M [GeV]    k_H(c)   k_H(t)     k_W(s)    k_W(b)     k_Z(c)    k_Z(t)  Gamma [GeV
    2000  0.711762  1.42361  0.0436416  0.087284  0.0617187   0.12482          100
 ```
 
-`table('txt')` prints the settings as comment lines above the table; they are left out here. Each coupling is also available under its name in the model, for example `vlq.Kappas['KTLw2']` for T–W–s (left-handed).
+`table('txt')` prints the settings as comment lines above the table; they are left out here. Each coupling is also available under its name in the model, for example `vlq.Kappas['KTLw2']` for T-W-s (left-handed).
 
 More examples are in the [examples](https://github.com/acanbay/VLQcalc/tree/main/examples) folder.
 
@@ -120,7 +120,7 @@ pytest
 
 The tests compare the widths with the formulas shipped with the UFO models and check the cards, the conversions and the output files.
 
-**AI assistance.** Version 0.2.0 was developed with the help of AI assistants (Claude, Anthropic). All output was reviewed, tested and validated by the authors.
+**AI assistance.** Versions 0.2.0 and 0.2.1 were developed with the help of AI assistants (Claude, Anthropic). All output was reviewed, tested and validated by the authors.
 
 <br>
 
@@ -128,10 +128,10 @@ The tests compare the widths with the formulas shipped with the UFO models and c
 
 ### References
 
-1. M. Buchkremer, G. Cacciapaglia, A. Deandrea, and L. Panizzi. Model-independent framework for searches of top partners. *Nuclear Physics B*, 876(2):376–417, 2013.
+1. M. Buchkremer, G. Cacciapaglia, A. Deandrea, and L. Panizzi. Model-independent framework for searches of top partners. *Nuclear Physics B*, 876(2):376-417, 2013.
 2. B. Fuks and H. S. Shao. QCD next-to-leading-order predictions matched to parton showers for vector-like quark models. *The European Physical Journal C*, 77(2):135, 2017.
-3. N. D. Christensen and C. Duhr. FeynRules – Feynman rules made easy. *Computer Physics Communications*, 180(9):1614–1641, 2009.
+3. N. D. Christensen and C. Duhr. FeynRules - Feynman rules made easy. *Computer Physics Communications*, 180(9):1614-1641, 2009.
 4. J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, and T. Stelzer. MadGraph 5: going beyond. *Journal of High Energy Physics*, 2011(6):128, 2011.
 5. Jupyter et al. Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale. *Proceedings of the 17th Python in Science Conference*. 2018.
-6. J. A. Aguilar-Saavedra, R. Benbrik, S. Heinemeyer, and M. Pérez-Victoria. Handbook of vectorlike quarks: Mixing and single production. *Physical Review D*, 88(9):094010, 2013.
+6. J. A. Aguilar-Saavedra, R. Benbrik, S. Heinemeyer, and M. Perez-Victoria. Handbook of vectorlike quarks: Mixing and single production. *Physical Review D*, 88(9):094010, 2013.
 7. S. Moretti, D. O'Brien, L. Panizzi, and H. Prager. Production of extra quarks at the Large Hadron Collider beyond the narrow width approximation. *Physical Review D*, 96(7):075035, 2017.

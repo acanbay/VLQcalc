@@ -23,4 +23,5 @@ set xibpw scan1:[0.522537, 0.509956, 0.505601]
 set xibpz scan1:[0.238738, 0.245025, 0.247201]
 set MBP scan1:[1000, 1500, 2000]
 set KB scan1:[0.565003, 0.371799, 0.277617]
+set WBP auto
 done

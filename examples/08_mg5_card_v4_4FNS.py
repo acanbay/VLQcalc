@@ -15,6 +15,6 @@ mg5.shower = 'Pythia8'
 mg5.detector = 'Delphes'
 
 mg5.addInput('nevents 1000')                 # settings for the run cards
-mg5.addInput('WBP auto')                     # MadGraph5 computes the width of B from the couplings
+# The card sets WBP auto: MadGraph5 computes the width of B from the couplings
 
 mg5.createMG5Input('bp_single_4FNS')         # writes bp_single_4FNS.dat

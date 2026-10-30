@@ -115,7 +115,7 @@ def test_equal_curves_are_drawn_once():
     vlq.setMass(range(1000, 2001, 100))
     vlq.calcRatioKappas([0.25, 0.5, 0.25], 0.1)
     assert sorted(line.get_label() for line in vlq.plot('BR').get_lines()) == [r'$Hb$ = $Zb$', r'$Wt$']
-    # curves that only cannot be told apart in the plot are joined with ≈
+    # curves that only cannot be told apart in the plot are joined with $\approx$
     labels = [line.get_label() for line in vlq.plot().get_lines()]
     assert r'$\kappa_{W,t}$ $\approx$ $\kappa_{Z,b}$' in labels
 
@@ -162,3 +162,14 @@ def test_constant_values_start_at_zero():
     vlq.calcRatioKappas([1/3, 1/3, 1/3], 0.1)
     ax = vlq.plot('BR')
     assert ax.get_ylim()[0] == 0 and ax.get_ylim()[1] > 0.3
+
+def test_branchings_are_labelled_per_boson_with_lighter_quarks(vlq):
+    text = vlq.table()
+    assert '- branchings: BR(H) = 0.5, BR(W) = 0.25, BR(Z) = 0.25' in text
+
+@pytest.mark.parametrize('zeta, label', [(None, 'BR(Wt) = 1'), ([0.2, 0.3, 0.5], 'BR(W) = 1')])
+def test_X_branching_label(zeta, label):
+    vlq = model.VLQ('X')
+    vlq.setMass(1000)
+    vlq.calcRatioKappas(Ratio=0.05, zeta=zeta)
+    assert f'- branchings: {label}' in vlq.table()

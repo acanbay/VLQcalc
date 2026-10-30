@@ -163,3 +163,84 @@ def test_forward_conversion_stores_list():
     vlq.setMass(1000)
     vlq.convertModel(0.2)
     assert vlq.KappaOld == [0.2]
+
+def test_mass_change_deletes_converted_KappaOld():
+    vlq = model.VLQ('X')
+    vlq.setMass(1000)
+    vlq.convertModel(0.1, reverse=True)
+    vlq.setMass(2000)
+    assert vlq.KappaOld is None
+
+def test_mass_change_keeps_KappaOld_set_by_hand():
+    vlq = model.VLQ('X')
+    vlq.setMass(1000)
+    vlq.KappaOld = [0.1]
+    vlq.setMass(2000)
+    assert vlq.KappaOld == [0.1]
+
+def test_reverse_conversion_deletes_ratio():
+    vlq = model.VLQ('T')
+    vlq.setMass([1000, 1500])
+    vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05)
+    vlq.convertModel([[2*k for k in ks] for ks in [vlq.KappaH, vlq.KappaW, vlq.KappaZ]], reverse=True)
+    assert vlq.Ratio is None
+
+@pytest.mark.parametrize('VLQtype, Mass, BRs', [('X', 200, 1), ('T', 250, [0.5, 0.25, 0.25])])
+def test_conversion_warns_for_channels_closed_in_VLQ_v4(VLQtype, Mass, BRs):
+    vlq = model.VLQ(VLQtype)
+    vlq.setMass(Mass)
+    with pytest.warns(UserWarning, match='kinematically closed in VLQ_v4'):
+        vlq.convertModel(0.5, BRs)
+
+def test_calcDecay_uses_LR_of_the_object():
+    vlq = model.VLQ('T', LR=True)
+    assert vlq.calcDecay(600, [1, 1, 1]) == vlq.calcDecay(600, [1, 1, 1], LR=True)
+    assert vlq.calcDecay(600, [1, 1, 1])[3] > vlq.calcDecay(600, [1, 1, 1], LR=False)[3]
+
+def test_widths_use_the_SM_inputs_of_the_couplings():
+    import VLQcalc.constants as constants
+    vlq = model.VLQ('T')
+    vlq.setMass(600)
+    vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05)
+    try:
+        constants.setSM(Mt=175)
+        assert math.isclose(sum(vlq.calcWidths(0).values()), 30, rel_tol=1e-5)
+        assert 'Mt = 172' in vlq.table()
+    finally:
+        constants.setSM()
+
+def test_reverse_results_can_be_converted_forward():
+    # xi and zeta are rounded to 6 significant digits, so their sum differs from 1 by about 1e-7
+    vlq = model.VLQ('B', 4, True)
+    vlq.setMass(3000)
+    vlq.calcRatioKappas([0.1, 0.6, 0.3], 0.05, zeta=[1/3, 1/3, 1/3])
+    vlq.convertModel([vlq.KappaH, vlq.KappaW, vlq.KappaZ], reverse=True)
+    other = model.VLQ('B', 4, True)
+    other.setMass(3000)
+    other.convertModel(vlq.KappaOld[0], [xi[0] for xi in vlq.BRs], zeta=vlq.zeta)
+
+def test_branchings_far_from_one_are_rejected():
+    with pytest.raises(ValueError, match='sum of all branchings'):
+        vlq = model.VLQ('T')
+        vlq.setMass(1000)
+        vlq.calcRatioKappas([0.5, 0.25, 0.2499], 0.05)
+
+def test_conversions_accept_numpy_arrays():
+    np = pytest.importorskip('numpy')
+    vlq = model.VLQ('T')
+    vlq.setMass([1000, 1500])
+    vlq.calcRatioKappas([0.5, 0.25, 0.25], 0.05)
+    lists = [vlq.KappaH, vlq.KappaW, vlq.KappaZ]
+    vlq.convertModel(np.array(lists), reverse=True)
+    fromArray = list(vlq.KappaOld)
+    vlq.convertModel(lists, reverse=True)
+    assert fromArray == vlq.KappaOld
+    vlq.convertModel(np.array([0.3]), [0.5, 0.25, 0.25])
+    assert vlq.KappaOld == [0.3]
+
+def test_mass_change_keeps_a_number_set_by_hand():
+    vlq = model.VLQ('X')
+    vlq.setMass(1000)
+    vlq.KappaOld = 0.5
+    vlq.setMass(2000)
+    assert vlq.KappaOld == 0.5

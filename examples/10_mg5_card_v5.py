@@ -10,6 +10,5 @@ mg5 = madgraph.MG5(vlq, 'VLQ_v5_UFO')
 mg5.setProcess('p p > x x~, x > w+ t')
 
 mg5.addInput('nevents 1000')
-mg5.addInput('WX auto')                      # MadGraph5 computes the width of X from the couplings
 
 mg5.createMG5Input('x_pair')

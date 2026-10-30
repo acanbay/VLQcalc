@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: 'VLQcalc: a Python Module for Calculating Vector-like Quark Couplings'
-version: 0.2.0
+version: 0.2.1
 abstract: We present a python module named VLQcalc which can be used for employing coupling parameters of vector-like quarks (VLQs) within model framework. It facilitates the conversion of couplings between different parametrization of VLQ models and computes these couplings depending on the width-to-mass ratio ($\Gamma/m$), with given branchings. Since every partial width is proportional to the square of its coupling, the couplings follow exactly from the chosen width-to-mass ratio and branching ratios, also for couplings to first- and second-generation quarks; the widths use the same formulas and SM inputs as the models. In addition, VLQcalc can generate input cards for MadGraph5 (MG5) for event generation. The module's capability to efficiently manage the process from calculating coupling constants to prepare MG5 input card will accelerate the tasks in the new studies.
 message: If you use this software, please cite it using these metadata.
 authors:
@@ -11,7 +11,7 @@ authors:
   given-names: Orhan
   orcid: "https://orcid.org/0000-0002-9016-138X"
   
-date-released: '2026-10-25'
+date-released: '2026-10-30'
 doi: 10.5281/zenodo.12594620
 license: MIT
 type: software

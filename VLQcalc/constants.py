@@ -1,6 +1,7 @@
 '''
 Author : Ali Can Canbay - acanbay
 Created: 25 October 2026
+Updated: 30 October 2026
 
 SM inputs used in the decay width calculations.
 Default values are the SM inputs of the VLQ_v4_UFO restrict cards [1,2]; MW, ee, sw and cw are derived
@@ -9,7 +10,7 @@ If the param_card used in MadGraph5 is changed, the same values should be set he
 
 ====REFERENCES====
 [1] Alloul, A., Christensen, N. D., Degrande, C., Duhr, C., & Fuks, B. (2014).
-    FeynRules 2.0—A complete toolbox for tree-level phenomenology.
+    FeynRules 2.0 - A complete toolbox for tree-level phenomenology.
     Computer Physics Communications, 185(8), 2250-2300.
     https://feynrules.irmp.ucl.ac.be/
 [2] Fuks, B., & Shao, H. S. (2017).
@@ -17,7 +18,7 @@ If the param_card used in MadGraph5 is changed, the same values should be set he
     The European Physical Journal C, 77(2), 135.
     https://feynrules.irmp.ucl.ac.be/wiki/NLOModels
 '''
-import cmath, math, numbers
+import cmath, contextlib, math, numbers
 ############
 # Independent inputs
 DEFAULTS = {'MZ': 91.1876, 'aEWM1': 127.9, 'Gf': 1.16637e-5, 'Mt': 172.0, 'Mb': 4.7, 'MH': 125.0}
@@ -51,5 +52,19 @@ def getSM():
     values = {name: globals()[name] for name in DEFAULTS}
     values['MW'] = MW
     return values
+
+def inputs():
+    '''Returns the current independent SM inputs (without MW)'''
+    return {name: globals()[name] for name in DEFAULTS}
+
+@contextlib.contextmanager
+def using(values):
+    '''Uses the SM inputs values (e.g. the ones stored in a VLQ object) inside a with block'''
+    old = inputs()
+    setSM(**(values or old))
+    try:
+        yield
+    finally:
+        setSM(**old)
 
 setSM()

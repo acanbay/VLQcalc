@@ -32,6 +32,6 @@ set KBLz2 0
 set KBRz2 0
 set KBLz3 scan1:[0.276083, 0.184021, 0.13801]
 set KBRz3 scan1:[0.276083, 0.184021, 0.13801]
-set nevents 10000
 set WBP auto
+set nevents 10000
 done

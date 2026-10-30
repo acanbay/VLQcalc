@@ -1,7 +1,7 @@
 '''
 Author : Ali Can Canbay - acanbay
 Created: 21 May 2024
-Updated: 25 October 2026
+Updated: 30 October 2026
 
 Calculates decay widths for VLQ_v4_4FNS_UFO and VLQ_v4_5FNS_UFO models [1,2].
 The formulas are those of the decays.py files of the models, written for a general quark mass;
@@ -9,7 +9,7 @@ SM inputs are read from constants.py.
 
 ====REFERENCES====
 [1] Alloul, A., Christensen, N. D., Degrande, C., Duhr, C., & Fuks, B. (2014). 
-    FeynRules 2.0—A complete toolbox for tree-level phenomenology. 
+    FeynRules 2.0 - A complete toolbox for tree-level phenomenology. 
     Computer Physics Communications, 185(8), 2250-2300.
     https://feynrules.irmp.ucl.ac.be/
 [2] Fuks, B., & Shao, H. S. (2017). 

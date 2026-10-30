@@ -11,6 +11,5 @@ mg5.setProcess('p p > bp j, (bp > w- t, t > w+ b)')
 mg5.addProcess('p p > bp j b, (bp > w- t, t > w+ b)')
 
 mg5.addInput('nevents 1000')
-mg5.addInput('WBP auto')
 
 mg5.createMG5Input('bp_single_5FNS')

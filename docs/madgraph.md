@@ -53,6 +53,7 @@ set KBLz2 0
 set KBRz2 0
 set KBLz3 scan1:[0.390394, 0.260237]
 set KBRz3 0
+set WBP auto
 set nevents 10000
 done
 ```
@@ -94,17 +95,17 @@ Because every name stands for the particle and the antiparticle, a process alway
 
 ### VLQ_v4_UFO and VLQ_v5_UFO
 
-- `import model VLQ_v4_4FNS_UFO` (or `5FNS`; `VLQ_v5_4FNS_NLO_UFO` for VLQ_v5).
+- `import model VLQ_v4_4FNS_UFO` (or `5FNS`; `VLQ_v5_4FNS_NLO_UFO` or `VLQ_v5_5FNS_NLO_UFO` for VLQ_v5).
 - The mass (`MTP`, `MBP`, `MX` or `MY`).
 - Every coupling of the VLQ to SM quarks (`vlq.Kappas`), including the ones that are zero.
 
 The full model is imported, without a restriction card such as `-3rd`. The VLQ_v4 5FNS model has no restriction cards, and the restriction cards of the 4FNS model remove the right-handed couplings and the couplings to the 1st and 2nd generations, which VLQcalc can use. In the full VLQ_v4 model the default couplings to the 1st and 2nd generations are not zero (for example `KTLh1 = 0.479`), so VLQcalc writes all couplings explicitly. Writing them gives the same couplings as the restriction card would; MadGraph5 may take somewhat longer to generate processes with the full model, because it also generates the diagrams whose couplings are set to zero later.
 
-If no couplings were computed, the 3rd generation couplings are not written and the defaults of the model are used; the couplings to lighter quarks are still set to zero. If no mass was set, the mass is not written either.
+If no couplings were computed, the 3rd generation couplings are not written and the defaults of the model are used, with a warning; the couplings to lighter quarks are still set to zero. If no mass was set, the mass is not written either.
 
 ### VLQ_UFO
 
-- `import model VLQ_UFO`.
+- `import model VLQ_UFO`. This model has a massive b quark and exists only in the 4-flavour scheme. The card does not depend on `FNS`; with `FNS=5` it is written with a warning, and MadGraph5 runs in the 4-flavour scheme.
 - The generation fractions `zeta...L` and `zeta...R` from `vlq.zeta`. With `LR=True` each is $\zeta_i/2$; see [Models](models.md#both-chiralities).
 - For T and B, the parameters `xi...` from `vlq.BRs`. A VLQ_UFO card for T or B needs them; `convertModel(..., reverse=True)` sets them together with `KappaOld` (see [Models](models.md#from-vlq_v4vlq_v5-to-vlq_ufo)).
 - The mass and the overall coupling (`KT`, `KB`, `KX`, `KY`) from `vlq.KappaOld`.
@@ -113,4 +114,6 @@ If no couplings were computed, the 3rd generation couplings are not written and 
 
 ## Widths in MadGraph5
 
-The card does not set the VLQ width. To compute it in MadGraph5 with the same couplings, add `mg5.addInput('WTP auto')` (`WBP`, `WX`, `WY` for the other VLQs). The width computed by MadGraph5 is the one VLQcalc computes; see [Physics conventions](physics.md#validation).
+The card sets the width of the VLQ (`WTP`, `WBP`, `WX` or `WY`) to `auto`, so MadGraph5 computes it from the couplings written to the card. With VLQ_v4 and VLQ_v5 this is the width VLQcalc computes; see [Physics conventions](physics.md#validation). Without it, MadGraph5 would use the fixed width of the param_card (5 GeV in VLQ_v4, 11 GeV in VLQ_v5), which does not belong to the couplings and changes the branching ratios in decay chains.
+
+`mg5.width` changes this. `'vlqcalc'` writes the widths VLQcalc computes from the couplings (VLQ_v4 and VLQ_v5 cards); with several masses they are written as a `scan1` list in the order of the masses, so each point of the scan gets the width of its mass. MadGraph5 then fills only the total width of the DECAY block, not the branching ratios, which `auto` also writes (they are needed, for example, when Pythia8 decays the VLQ). A non-negative number, or one number per mass, in GeV writes that width, and `None` writes no width line, so the value of the param_card is used. A width given with `addInput` is written after the default and replaces it.

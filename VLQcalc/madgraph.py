@@ -1,7 +1,7 @@
 '''
 Author : Ali Can Canbay - acanbay
 Created: 21 May 2024
-Updated: 25 October 2026
+Updated: 30 October 2026
 
 This module is used to create MG5 object. MG5 object contains methods to create input file for 
 MadGraph5_aMC@NLO [1].
@@ -33,6 +33,8 @@ OLD_MODEL = {'VLT': {'mass':'MTP', 'kappa':'KT', 'zeta':['zetaTu','zetaTc','zeta
              'VLB': {'mass':'MBP', 'kappa':'KB', 'zeta':['zetaBd','zetaBs','zetaBb'], 'xi':['xibph','xibpw','xibpz']},
              'VLX': {'mass':'MX',  'kappa':'KX', 'zeta':['zetaXu','zetaXc','zetaXt'], 'xi':[]},
              'VLY': {'mass':'MY',  'kappa':'KY', 'zeta':['zetaYd','zetaYs','zetaYb'], 'xi':[]}}
+# Width parameters, the same in all three models
+WIDTH = {'VLT': 'WTP', 'VLB': 'WBP', 'VLX': 'WX', 'VLY': 'WY'}
 
 class MG5:
     '''
@@ -40,6 +42,9 @@ class MG5:
 
     model: 'VLQ_UFO', 'VLQ_v4_UFO' or 'VLQ_v5_UFO'
     Run settings: shower, detector, analysis, madspin, reweight (default 'OFF')
+    width: width of the VLQ, 'auto' (MadGraph5 computes it from the couplings, default), 'vlqcalc' (the width
+           VLQcalc computes, one value per mass; VLQ_v4/VLQ_v5), a number or one number per mass in GeV,
+           or None (the value of the param_card is kept)
     '''
     def __init__(self,VLQ,model='VLQ_v4_UFO'):
         if getattr(VLQ, 'type', None) not in OLD_MODEL:
@@ -49,6 +54,10 @@ class MG5:
         # Checking the model
         if type(model) != str or model.upper() not in ['VLQ_UFO', 'VLQ_V4_UFO', 'VLQ_V5_UFO']:
             raise ValueError('MG5: model must be one of the following: VLQ_UFO, VLQ_v4_UFO, VLQ_v5_UFO')
+        # VLQ_UFO has a massive b quark and no 5FNS version; its card does not depend on FNS, so it is still written
+        if VLQ.FNS == 5 and model.upper() == 'VLQ_UFO':
+            warnings.warn('MG5: VLQ_UFO exists only in the 4-flavour scheme (massive b quark), so MadGraph5 runs in the '
+                          '4-flavour scheme; use VLQ_v4_UFO for the 5-flavour scheme', stacklevel=2)
         if model.upper() == 'VLQ_UFO':
             self.model = 'VLQ_UFO'
             self.text = 'import model VLQ_UFO\n'
@@ -70,6 +79,7 @@ class MG5:
         self.analysis = 'OFF' #OFF, ExRoot, MadAnalysis
         self.madspin = 'OFF' #OFF, ON, onshell, full
         self.reweight = 'OFF' #OFF, ON
+        self.width = 'auto' #auto, vlqcalc, number(s) in GeV, None
         self.runInputs = []
 
     def correctText(self,text):
@@ -180,6 +190,11 @@ class MG5:
             # Every coupling of the VLQ is written, since the defaults of the full model are not zero.
             # The 3rd generation couplings are skipped only if they were never set (model defaults are kept).
             third = {'h': VLQ.KappaH, 'w': VLQ.KappaW, 'z': VLQ.KappaZ}
+            missing = [boson for boson in VLQ.bosons if third[boson] is None]
+            if missing:
+                warnings.warn(f'MG5.createMG5Input: no couplings of {VLQ.type} to the 3rd generation are set '
+                              f'({", ".join(boson.upper() for boson in missing)}), so the defaults of the model are used; '
+                              'compute them with calcRatioKappas or convertModel', stacklevel=2)
             Kappas = VLQ.Kappas
             for parameter in self.couplingNames():
                 boson = parameter[3] if VLQ.type in ['VLT','VLB'] else 'w'
@@ -205,6 +220,32 @@ class MG5:
             else:
                 warnings.warn(f'MG5.createMG5Input: no VLQ_UFO coupling ({names["kappa"]}) is set, so the default of the '
                               'model is used; set VLQ.KappaOld or use convertModel(..., reverse=True)', stacklevel=2)
+
+        # The width of the VLQ; 'auto' gives the width VLQcalc computes from the same couplings
+        if isinstance(self.width, str):
+            if self.width.lower() == 'auto':
+                text += f'set {WIDTH[VLQ.type]} auto\n'
+            elif self.width.lower() == 'vlqcalc':
+                # one width per mass, in the order of the masses, so that the scan1 lists of the mass and the
+                # width belong together point by point
+                if self.model == 'VLQ_UFO':
+                    raise ValueError("MG5.createMG5Input: width='vlqcalc' gives the widths of VLQ_v4/VLQ_v5; "
+                                     "use width='auto' for VLQ_UFO")
+                if VLQ.Mass is None or VLQ.KappaW is None:
+                    raise ValueError("MG5.createMG5Input: width='vlqcalc' needs the mass and the couplings; "
+                                     'use calcRatioKappas or convertModel first')
+                text += self.setLine(WIDTH[VLQ.type], [sum(VLQ.calcWidths(i).values()) for i in range(len(VLQ.Mass))])
+            else:
+                raise ValueError("MG5.createMG5Input: width must be 'auto', 'vlqcalc', a number, one number per mass "
+                                 f'or None -> {self.width}')
+        elif self.width is not None:
+            from VLQcalc.model import isNumber, isFinite, toNumber
+            width = toNumber(self.width)
+            values = [width] if isNumber(width) else list(width) if hasattr(width, '__len__') and not isinstance(width, dict) else []
+            if not values or not all(isFinite(toNumber(value)) and toNumber(value) >= 0 for value in values):
+                raise ValueError("MG5.createMG5Input: width must be 'auto', 'vlqcalc', a non-negative number, one number "
+                                 f'per mass or None -> {self.width}')
+            text += self.setLine(WIDTH[VLQ.type], values)
 
         # Settings given with addInput come last, so that they can also change a mass or a coupling
         for input in self.runInputs:
